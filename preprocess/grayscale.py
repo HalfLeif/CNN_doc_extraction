@@ -27,7 +27,6 @@ def addHistogram(histogram, ix):
     Returns a numpy array of 256 elements with the count for each value.
 '''
 def pyHistogram(pixelValues, counts):
-    print('call received!')
     histogram = np.zeros((256,), dtype=np.int32)
 
     for i in xrange(len(pixelValues)):
@@ -36,11 +35,52 @@ def pyHistogram(pixelValues, counts):
 
     return histogram
 
+''' Given an intensity histogram, computes Otsu's global threshold.'''
+def pyOtsus(histogram):
+    total = sum(histogram)
+
+    # Maintains class count.
+    # Divide by total count above to get class probability.
+    w_black = 0
+    w_white = total
+
+    # Maintains weighted count.
+    # Divide by class count above to get expectation.
+    mu_black = 0
+    mu_white = 0
+    for i in xrange(len(histogram)):
+        mu_white = mu_white + i * histogram[i]
+
+    highest_var = 0
+    best_t = 0
+    for t in xrange(len(histogram)):
+        # Update counts
+        w_diff = histogram[t]
+        w_black = w_black + w_diff
+        w_white = w_white - w_diff
+
+        mu_black = mu_black + t * w_diff
+        mu_white = mu_white - t * w_diff
+
+        # Compute variance
+        if w_black == 0 or w_white == 0:
+            continue
+        diff = mu_black/w_black - mu_white/w_white
+        sigma2 = w_black * w_white * diff * diff
+        if sigma2 > highest_var:
+            highest_var = sigma2
+            best_t = t
+
+    return np.uint8(best_t)
+
+def pyOtsusGlobalThreshold(pixelValues, counts):
+    histogram = pyHistogram(pixelValues, counts)
+    return pyOtsus(histogram)
+
 def otsusGlobalThreshold(image):
     array = tf.reshape(image, shape=[-1])
     pixelValues, _, counts = tf.unique_with_counts(array)
-    histogram = tf.py_func(pyHistogram, [pixelValues, counts], tf.int32, stateful=True)
+    threshold = tf.py_func(pyOtsusGlobalThreshold, [pixelValues, counts], tf.uint8, stateful=False)
 
-    # TODO
-
-    return histogram
+    binarized = binarizeGlobal(image, threshold)
+    return (binarized, threshold)

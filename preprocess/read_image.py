@@ -16,7 +16,7 @@ _, image_file = image_reader.read(filename_queue)
 
 # Grayscale image: channels=1
 # Can downscale with: ratio=2/4/8
-image = tf.image.decode_jpeg(image_file, channels=1, ratio=8)
+image = tf.image.decode_jpeg(image_file, channels=1, ratio=2)
 
 
 def printImage(image_tensor):
@@ -44,22 +44,14 @@ with tf.Session() as sess:
     threads = tf.train.start_queue_runners(coord=coord)
 
     print("Evaluate...")
-    # print(image.get_shape().as_list())
-    # image_tensor, image_shape = sess.run([image, image.get_shape().as_list()])
 
-    # boolImage = gray.binarizeGlobal(image, 128)
+    test, threshold = gray.otsusGlobalThreshold(image)
 
-    test = gray.otsusGlobalThreshold(image)
-
-    result = sess.run([test])
+    result = sess.run([test, threshold])
     print("Evaluated")
+    print("Threshold: " + str(result[1]))
     image_tensor = result[0]
-    print(image_tensor)
-    # print(image.get_shape().as_list())
-    #printImage(image_tensor)
-
-
-
+    printImage(image_tensor)
 
     coord.request_stop()
     coord.join(threads)
