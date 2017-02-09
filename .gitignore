@@ -3,3 +3,4 @@ MNIST_data/
 models/
 data/
 
+*.pyc

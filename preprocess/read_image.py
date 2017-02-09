@@ -1,4 +1,8 @@
+
+import grayscale as gray
 import tensorflow as tf
+
+
 import sys, os
 
 
@@ -12,7 +16,7 @@ _, image_file = image_reader.read(filename_queue)
 
 # Grayscale image: channels=1
 # Can downscale with: ratio=2/4/8
-image = tf.image.decode_jpeg(image_file, channels=1, ratio=2)
+image = tf.image.decode_jpeg(image_file, channels=1, ratio=8)
 
 
 def printImage(image_tensor):
@@ -24,12 +28,8 @@ def printImage(image_tensor):
     for i in xrange(rows):
         for j in xrange(cols):
             cell = image_tensor[i][j][0]
-            if cell < 64:
+            if cell:
                 out = '#'
-            elif cell < 128:
-                out = '='
-            elif cell < 196:
-                out = '-'
             else:
                 out = '.'
             sys.stdout.write(out)
@@ -47,10 +47,16 @@ with tf.Session() as sess:
     # print(image.get_shape().as_list())
     # image_tensor, image_shape = sess.run([image, image.get_shape().as_list()])
 
-    result = sess.run([image])
+    # boolImage = gray.binarizeGlobal(image, 128)
+
+    test = gray.otsusGlobalThreshold(image)
+
+    result = sess.run([test])
     print("Evaluated")
     image_tensor = result[0]
+    print(image_tensor)
     # print(image.get_shape().as_list())
+    #printImage(image_tensor)
 
 
 
