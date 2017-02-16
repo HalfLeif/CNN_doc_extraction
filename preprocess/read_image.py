@@ -25,8 +25,8 @@ def printImage(image_tensor):
 
     # print(image_tensor[1][1])
 
-    for i in xrange(rows):
-        for j in xrange(cols):
+    for i in range(rows):
+        for j in range(cols):
             cell = image_tensor[i][j][0]
             if cell:
                 out = '#'

@@ -29,7 +29,7 @@ def addHistogram(histogram, ix):
 def pyHistogram(pixelValues, counts):
     histogram = np.zeros((256,), dtype=np.int32)
 
-    for i in xrange(len(pixelValues)):
+    for i in range(len(pixelValues)):
         intensity = pixelValues[i]
         histogram[intensity] = counts[i]
 
@@ -48,12 +48,12 @@ def pyOtsus(histogram):
     # Divide by class count above to get expectation.
     mu_black = 0
     mu_white = 0
-    for i in xrange(len(histogram)):
+    for i in range(len(histogram)):
         mu_white = mu_white + i * histogram[i]
 
     highest_var = 0
     best_t = 0
-    for t in xrange(len(histogram)):
+    for t in range(len(histogram)):
         # Update counts
         w_diff = histogram[t]
         w_black = w_black + w_diff
