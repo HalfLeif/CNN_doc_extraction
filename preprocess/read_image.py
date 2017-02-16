@@ -1,6 +1,10 @@
 
 import grayscale as gray
+import load_data as ld
+import debug as debug
+
 import tensorflow as tf
+from tensorflow.python.framework import ops
 
 import sys, os
 
@@ -33,6 +37,18 @@ def readJpg(dirname):
     # Can downscale with: ratio=2/4/8
     return tf.image.decode_jpeg(image_file, channels=1, ratio=2)
 
+def queueEsposalles(dirname):
+    image_list, label_list = ld.loadEsposalles(dirname)
+    images = ops.convert_to_tensor(image_list, dtype=tf.string)
+    labels = ops.convert_to_tensor(label_list, dtype=tf.string)
+    queue = tf.train.slice_input_producer([images, labels])
+    return queue
+
+def decodeEsposalles(queue):
+    label = queue[1]
+    image_file = tf.read_file(queue[0])
+    decoded = tf.image.decode_png(image_file, channels=1)
+    return decoded, label
 
 def evaluateImage(image):
     with tf.Session() as sess:
@@ -57,5 +73,9 @@ def evaluateImage(image):
         coord.join(threads)
 
 if __name__ == '__main__':
-    image = readJpg(sys.argv[1])
-    evaluate(image)
+    # image = readJpg(sys.argv[1])
+
+    queue = queueEsposalles(sys.argv[1])
+    image, label = decodeEsposalles(queue)
+
+    evaluateImage(image)
