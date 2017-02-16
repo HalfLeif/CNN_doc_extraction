@@ -66,7 +66,7 @@ def pyOtsus(histogram):
         if w_black == 0 or w_white == 0:
             continue
         diff = mu_black/w_black - mu_white/w_white
-        sigma2 = w_black * w_white * diff * diff
+        sigma2 = (w_black/total) * (w_white/total) * diff * diff
         if sigma2 > highest_var:
             highest_var = sigma2
             best_t = t
