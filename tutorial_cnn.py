@@ -82,7 +82,7 @@ def train():
             train_accuracy = accuracy.eval(feed_dict={
                     x:batch[0], y_: batch[1], keep_prob: 1.0})
             print("step %d, training accuracy %g"%(i, train_accuracy))
-            savepath = saver.save(sess, os.path.join(model_path, 'model'), global_step=i)
+            savepath = saver.save(sess, os.path.join(model_path, 'data'), global_step=i)
         train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
 
     print("test accuracy %g"%accuracy.eval(feed_dict={

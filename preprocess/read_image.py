@@ -72,9 +72,9 @@ def evaluateImage(image):
         coord.join(threads)
 
 if __name__ == '__main__':
-    # image = readJpg(sys.argv[1])
+    image = readJpg(sys.argv[1])
 
-    queue = queueEsposalles(sys.argv[1])
-    image, label = decodeEsposalles(queue)
+    # queue = queueEsposalles(sys.argv[1])
+    # image, label = decodeEsposalles(queue)
 
     evaluateImage(image)
