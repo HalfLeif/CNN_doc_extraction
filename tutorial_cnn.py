@@ -4,13 +4,14 @@ from __future__ import division
 from __future__ import print_function
 
 from network import conv
+from preprocess import grayscale
 
 from tensorflow.examples.tutorials.mnist import input_data
 import tensorflow as tf
 
 import os
-#import sys
-#import numpy
+import sys
+import numpy
 
 
 model_path = 'models'

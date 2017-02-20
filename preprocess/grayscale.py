@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-import image_transform as it
+import preprocess.image_transform as it
 
 ''' Input: image tensor of shape [width, height, channels]
            and global threshold.

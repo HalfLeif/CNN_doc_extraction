@@ -1,15 +1,6 @@
 
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
-# from tensorflow.contrib import slim
-
-'''Takes binarized image and performs all convolutions.'''
-def convLayers(image):
-    net = image
-    net = slim.conv2d(net, 16, [3, 3], scope='conv1')
-    #net = slim.conv2d(net, 16, [3, 3])
-    #net = slim.maxpool(net, [2, 2])
-    return net
+from tensorflow.contrib import slim
 
 ''' Lenet-5 with dropout
 
