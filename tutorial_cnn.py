@@ -25,7 +25,7 @@ x_image = tf.reshape(x, [-1,28,28,1])
 
 # Readout
 keep_prob = tf.placeholder(tf.float32)
-y_conv = conv.lenet5(x_image, keep_prob)
+y_conv = conv.refLenet5(x_image, keep_prob)
 
 # Training
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_conv, y_))
