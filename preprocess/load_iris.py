@@ -4,14 +4,14 @@ import xml.etree.ElementTree as et
 import os
 import sys
 
-'''Generator for path to all xml with transcriptions files'''
 def transcriptionFiles(directory):
+'''Generator for path to all xml with transcriptions files'''
     transcription_dir = os.path.join(directory, 'transcription')
     for filename in os.listdir(transcription_dir):
-        basename, ext = os.path.splitext(filename)
+        _, ext = os.path.splitext(filename)
         if ext == '.xml':
             filepath = os.path.join(transcription_dir, filename)
-            yield (filepath, basename)
+            yield filepath
 
 def parseHeader(header):
     years = set()
@@ -22,6 +22,11 @@ def parseHeader(header):
 
 
 def parseFile(filepath):
+''' Parses all the relevant data in the indexed file.
+
+    Returns name of corresponding image as well as
+    list of unique years in the image.
+'''
     tree = et.parse(filepath)
     root = tree.getroot()
 
@@ -33,7 +38,16 @@ def parseFile(filepath):
             break
     return jpg_name, result
 
+
+def irisInput(directory):
+''' Generator for reading IRIS data.'''
+    for xmlpath in transcriptionFiles(directory):
+        jpg_name, indexed_data = parseFile(xmlpath)
+        jpg_path = os.path.join(directory, 'images', jpg_name)
+        yield (jpg_path, indexed_data)
+
+
 if __name__ == '__main__':
-    for xmlpath, name in transcriptionFiles(sys.argv[1]):
+    for xmlpath in transcriptionFiles(sys.argv[1]):
         jpg_name, indexed = parseFile(xmlpath)
         print(jpg_name, indexed)

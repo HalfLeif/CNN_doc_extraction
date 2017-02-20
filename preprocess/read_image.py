@@ -1,6 +1,6 @@
 
 import preprocess.grayscale as gray
-import preprocess.load_data as ld
+import preprocess.load_esposalles as ld
 
 import tensorflow as tf
 from tensorflow.python.framework import ops
