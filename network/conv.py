@@ -2,23 +2,37 @@
 import tensorflow as tf
 from tensorflow.contrib import slim
 
+def addLayer(net, depth, name):
+    net = slim.conv2d(net, depth, [3, 3], padding='VALID', scope='conva_' + name)
+    net = slim.conv2d(net, depth, [3, 3], padding='VALID', scope='convb_' + name)
+    net = slim.max_pool2d(net, [2, 2], scope='pool_' + name)
+    return net
+
+def deepEncoder(image):
+    with slim.arg_scope([slim.conv2d],
+                        activation_fn=tf.nn.relu,
+                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.05),
+                        weights_regularizer=slim.l2_regularizer(0.0005)):
+        net = image
+        net = addLayer(net, 8, '1')
+        net = addLayer(net, 8, '2')
+        net = addLayer(net, 16, '3')
+        net = addLayer(net, 16, '4')
+        net = addLayer(net, 32, '5')
+        net = addLayer(net, 32, '6')
+        net = addLayer(net, 64, '7')
+        return net
+
+
 def encodeImage(image):
     with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,
                         weights_initializer=tf.truncated_normal_initializer(0.0, 0.1),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = image
-        net = slim.conv2d(net, 32, [3, 3], scope='conv1a')
-        net = slim.conv2d(net, 32, [3, 3], scope='conv1b')
-        net = slim.max_pool2d(net, [2, 2], scope='pool1')
-
-        net = slim.conv2d(net, 64, [3, 3], scope='conv2a')
-        net = slim.conv2d(net, 64, [3, 3], scope='conv2b')
-        net = slim.max_pool2d(net, [2, 2], scope='pool2')
-
-        net = slim.conv2d(net, 128, [3, 3], scope='conv3a')
-        net = slim.conv2d(net, 128, [3, 3], scope='conv3b')
-        net = slim.max_pool2d(net, [2, 2], scope='pool3')
+        net = addLayer(net, 32, '1')
+        net = addLayer(net, 64, '2')
+        net = addLayer(net, 128, '3')
         return net
 
 def decodeDigit(net, keep_prob):
