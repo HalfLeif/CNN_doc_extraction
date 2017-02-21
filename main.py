@@ -29,22 +29,22 @@ train_step = tf.train.AdamOptimizer(1e-4).minimize(error)
 # TODO: batch accuracy
 
 
+print('FIND FILES')
+all_files = iris.inputNames(train_data_path)
+filename_queue = tf.train.string_input_producer(all_files, shuffle=True, seed=1)
+
 with tf.Session() as sess:
     print('INIT VARIABLES!')
     sess.run(tf.global_variables_initializer())
 
-    print('Start generator')
-    gen = iris.inputNames(train_data_path)
-    # all_files = list(gen)
-    # filename_queue = tf.train.string_input_producer(all_files, shuffle=True, seed=1)
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(coord=coord)
 
     for i in range(10):
-        # TODO increase range...
-        # TODO batch training
-        # basename = tf.as_string(filename_queue.dequeue())
-        basename = gen.__next__()
-        jpg_path, y = iris.loadPair(train_data_path, basename)
-        print('Y: ', y)
+        pairname_tensor = filename_queue.dequeue()
+        pairname = pairname_tensor.eval().decode('utf-8')
+        jpg_path, y = iris.loadPair(train_data_path, pairname)
+        print(pairname, 'Year:', y)
 
         image_content = tf.read_file(jpg_path)
         x_tensor = tf.image.decode_jpeg(image_content, channels=1, ratio=2, name='image')
@@ -53,3 +53,6 @@ with tf.Session() as sess:
         x, _ = gray.otsusGlobalThreshold(x)
 
         train_step.run(feed_dict={image: x.eval(), year: y, keep_prob: 0.5})
+
+    coord.request_stop()
+    coord.join(threads)

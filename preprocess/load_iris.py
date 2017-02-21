@@ -4,13 +4,31 @@ import xml.etree.ElementTree as et
 import os
 import sys
 
+
 def inputNames(directory):
-    '''Returns basenames for xml and jpgs in this IRIS directory.'''
+    '''Returns pairnames for xml and jpgs in this IRIS directory.'''
+    transcription_dir = os.path.join(directory, 'transcription')
+    files = os.listdir(transcription_dir)
+    return [os.path.splitext(f)[0] for f in files if f.endswith('.xml')]
+
+def inputNamesGen(directory):
+    '''Generates pairnames for xml and jpgs in this IRIS directory.'''
     transcription_dir = os.path.join(directory, 'transcription')
     for filename in os.listdir(transcription_dir):
-        basename, ext = os.path.splitext(filename)
+        pairname, ext = os.path.splitext(filename)
         if ext == '.xml':
-            yield basename
+            yield pairname
+
+def xmlFiles(directory):
+    transcription_dir = os.path.join(directory, 'transcription')
+    files = os.listdir(transcription_dir)
+    return [f for f in files if f.endswith('.xml')]
+
+def jpgFiles(directory):
+    images_dir = os.path.join(directory, 'images')
+    files = os.listdir(images_dir)
+    return [f for f in files if f.endswith('.jpg')]
+
 
 def parseHeader(header):
     '''Returns greatest year found or -1.'''
@@ -38,14 +56,19 @@ def parseXmlFile(filepath):
             break
     return result
 
-def loadPair(directory, basename):
-    xml_path = os.path.join(directory, 'transcription', basename + '.xml')
+def loadPair(directory, pairname):
+    xml_path = os.path.join(directory, 'transcription', pairname + '.xml')
     label = parseXmlFile(xml_path)
-    jpg_path = os.path.join(directory, 'images', basename + '.jpg')
+    jpg_path = os.path.join(directory, 'images', pairname + '.jpg')
     return jpg_path, label
 
 
 if __name__ == '__main__':
-    for xmlpath in transcriptionFiles(sys.argv[1]):
-        jpg_name, indexed = parseXmlFile(xmlpath)
-        print(jpg_name, indexed)
+    print('start')
+    names = inputNames(sys.argv[1])
+    print(len(names))
+    names = list(inputNamesGen(sys.argv[1]))
+    print(len(names))
+    # for xmlpath in transcriptionFiles(sys.argv[1]):
+    #     jpg_name, indexed = parseXmlFile(xmlpath)
+    #     print(jpg_name, indexed)
