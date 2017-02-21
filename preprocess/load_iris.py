@@ -4,25 +4,24 @@ import xml.etree.ElementTree as et
 import os
 import sys
 
-def transcriptionFiles(directory):
-    '''Generator for path to all xml with transcriptions files'''
+def inputNames(directory):
+    '''Returns basenames for xml and jpgs in this IRIS directory.'''
     transcription_dir = os.path.join(directory, 'transcription')
     for filename in os.listdir(transcription_dir):
-        _, ext = os.path.splitext(filename)
+        basename, ext = os.path.splitext(filename)
         if ext == '.xml':
-            filepath = os.path.join(transcription_dir, filename)
-            yield filepath
+            yield basename
 
 def parseHeader(header):
-    '''Returns list of years found.'''
-    years = set()
+    '''Returns greatest year found or -1.'''
+    maxyear = -1
     for item in header:
-        if item.attrib['name'] == 'EVENT_YEAR' and len(item) == 0:
-            years.add(item.text)
-    return list(years)
+        if item.attrib['name'] == 'EVENT_YEAR' and len(item) == 0 and item.text:
+            maxyear = max(maxyear, int(item.text))
+    return maxyear
 
 
-def parseFile(filepath):
+def parseXmlFile(filepath):
     ''' Parses all the relevant data in the indexed file.
 
         Returns name of corresponding image as well as
@@ -31,24 +30,22 @@ def parseFile(filepath):
     tree = et.parse(filepath)
     root = tree.getroot()
 
-    jpg_name = root.attrib['raw-file']
+    # jpg_name = root.attrib['raw-file']
     result = None
     for child in root:
         if child.tag == 'header':
             result = parseHeader(child)
             break
-    return jpg_name, result
+    return result
 
-
-def irisInput(directory):
-    ''' Generator for reading IRIS data.'''
-    for xmlpath in transcriptionFiles(directory):
-        jpg_name, indexed_data = parseFile(xmlpath)
-        jpg_path = os.path.join(directory, 'images', jpg_name)
-        yield (jpg_path, indexed_data)
+def loadPair(directory, basename):
+    xml_path = os.path.join(directory, 'transcription', basename + '.xml')
+    label = parseXmlFile(xml_path)
+    jpg_path = os.path.join(directory, 'images', basename + '.jpg')
+    return jpg_path, label
 
 
 if __name__ == '__main__':
     for xmlpath in transcriptionFiles(sys.argv[1]):
-        jpg_name, indexed = parseFile(xmlpath)
+        jpg_name, indexed = parseXmlFile(xmlpath)
         print(jpg_name, indexed)

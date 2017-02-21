@@ -59,6 +59,10 @@ def decodeNumber(net, keep_prob):
         digit1 = slim.fully_connected(net, 10, activation_fn=None, scope='digit1')
         digit2 = slim.fully_connected(net, 10, activation_fn=None, scope='digit2')
         digit3 = slim.fully_connected(net, 10, activation_fn=None, scope='digit3')
+
+        # Note: this adds redundancy but is necessary
+        # in order to require the exact year
+        # instead of giving credit for partially correct year transcriptions.
         number = digitsToNumber(digit1, digit2, digit3)
 
         return ignore, number
