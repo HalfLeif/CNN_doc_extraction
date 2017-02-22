@@ -18,4 +18,5 @@ def error(year, decision_prob, year_prob):
     year_error = tf.nn.softmax_cross_entropy_with_logits(year_prob,
                                                          year_label)
 
-    return decision_error + year_error
+    total_err = tf.reduce_mean(decision_error + year_error)
+    return total_err
