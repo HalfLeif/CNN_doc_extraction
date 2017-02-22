@@ -6,8 +6,11 @@ import scoring as sc
 
 import tensorflow as tf
 
+import os
+
 # TODO: replace with FLAGS
-model_path = 'models'
+model_name = 'deep_cnn'
+model_path = os.path.join('models', model_name)
 train_data_path = 'D:Data\\french_parish_train'
 test_data_path = 'D:Data\\french_parish_test'
 
@@ -41,33 +44,38 @@ print('FIND FILES')
 all_files = iris.inputNames(train_data_path)
 filename_queue = tf.train.string_input_producer(all_files, shuffle=True, seed=1)
 
+def loadImage(jpg_path):
+    image_content = tf.read_file(jpg_path)
+    x = tf.image.decode_jpeg(image_content, channels=1, ratio=2, name='image')
+    x = tf.image.resize_images(x, FIX_SHAPE)
+    x = tf.cast(x, tf.uint8)
+    x, _ = gray.otsusGlobalThreshold(x)
+    return x.eval()
+
 with tf.Session() as sess:
     print('INIT VARIABLES!')
     sess.run(tf.global_variables_initializer())
 
+    saver = tf.train.Saver(max_to_keep=5)
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    for i in range(10):
+    for i in range(1000):
         print('BATCH', i)
 
         pairname_tensor = filename_queue.dequeue_many(BATCH_SIZE)
         pairnames = [p.decode('utf-8') for p in pairname_tensor.eval()]
-        # print(pairnames)
 
         jpg_paths = iris.getJpgPaths(train_data_path, pairnames)
+        xs = list(map(loadImage, jpg_paths))
         ys = list(iris.parseXmlFiles(train_data_path, pairnames))
 
-        xs = []
-        for jpg_path in jpg_paths:
-            image_content = tf.read_file(jpg_path)
-            x = tf.image.decode_jpeg(image_content, channels=1, ratio=2, name='image')
-            x = tf.image.resize_images(x, FIX_SHAPE)
-            x = tf.cast(x, tf.uint8)
-            x, _ = gray.otsusGlobalThreshold(x)
-            xs.append(x.eval())
+        if (i%50 == 0):
+            acc = accuracy.eval(feed_dict={images: xs, years: ys, keep_prob: 1.0})
+            print('Accuracy: ', acc)
 
         train_step.run(feed_dict={images: xs, years: ys, keep_prob: 0.5})
+        savepath = saver.save(sess, model_path, global_step=i)
 
     coord.request_stop()
     coord.join(threads)
