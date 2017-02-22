@@ -47,13 +47,21 @@ def decodeDigit(net, keep_prob):
         net = slim.fully_connected(net, 10, activation_fn=None, scope='output')
         return net
 
+def switchFirstTwo(ds):
+    '''Swaps the first two elements in a list.'''
+    if len(ds) < 2:
+        return ds
+    ds[0], ds[1] = (ds[1], ds[0])
+    return ds
 
-def digitsToNumber(digit1, digit2, digit3):
-    ''' Takes three vectors of digit probabilities [0-9],
-        returns a single vector of probabilities over [0-999].
+def expandDigits(digit_stack):
+    ''' Takes a stack of digit vectors probabilities, shape=[N, 10],
+        returns a single vector of probabilities, shape=[10**N].
     '''
-    mesh1, mesh2, mesh3 = tf.meshgrid(digit2, digit1, digit3)
-    number = tf.reshape(mesh1 * mesh2 * mesh3, [-1])
+    digit_list = switchFirstTwo(tf.unstack(digit_stack))
+    meshes = tf.meshgrid(*digit_list)
+    product = tf.foldr(tf.multiply, meshes)
+    number = tf.reshape(product, [-1])
     return number
 
 
@@ -77,9 +85,10 @@ def decodeNumber(net, keep_prob):
         # Note: this adds redundancy but is necessary
         # in order to require the exact year
         # instead of giving credit for partially correct year transcriptions.
-        number = digitsToNumber(digit1, digit2, digit3)
+        stacked_digits = tf.stack([digit1, digit2, digit3], axis=1)
+        numbers = tf.map_fn(expandDigits, stacked_digits)
 
-        return ignore, number
+        return ignore, numbers
 
 
 def lenet5(image, keep_prob):
