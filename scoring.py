@@ -3,7 +3,8 @@ import tensorflow as tf
 
 def error(year, decision_prob, year_prob):
     ''' Error function to minimize.
-        year is an integer in range [1000-1999] OR non-positive.
+        Label year is an integer in range [1000-1999] OR non-positive.
+        Supports batches.
     '''
     has_number = tf.greater(year, 0)
     has_number_as_int = tf.cast(has_number, tf.int32)

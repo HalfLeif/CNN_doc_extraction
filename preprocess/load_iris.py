@@ -22,12 +22,12 @@ def inputNamesGen(directory):
 def xmlFiles(directory):
     transcription_dir = os.path.join(directory, 'transcription')
     files = os.listdir(transcription_dir)
-    return [f for f in files if f.endswith('.xml')]
+    return [os.path.join(transcription_dir, f) for f in files if f.endswith('.xml')]
 
 def jpgFiles(directory):
     images_dir = os.path.join(directory, 'images')
     files = os.listdir(images_dir)
-    return [f for f in files if f.endswith('.jpg')]
+    return [os.path.join(images_dir, f) for f in files if f.endswith('.jpg')]
 
 
 def parseHeader(header):
@@ -56,11 +56,18 @@ def parseXmlFile(filepath):
             break
     return result
 
-def loadPair(directory, pairname):
-    xml_path = os.path.join(directory, 'transcription', pairname + '.xml')
-    label = parseXmlFile(xml_path)
-    jpg_path = os.path.join(directory, 'images', pairname + '.jpg')
-    return jpg_path, label
+def parseXmlFiles(directory, pairnames):
+    xml_paths = map(lambda p: os.path.join(directory, 'transcription', p + '.xml'), pairnames)
+    return map(parseXmlFile, xml_paths)
+
+def getJpgPaths(directory, pairnames):
+    return map(lambda p: os.path.join(directory, 'images', p + '.jpg'), pairnames)
+
+# def loadPair(directory, pairname):
+#     xml_path = os.path.join(directory, 'transcription', pairname + '.xml')
+#     label = parseXmlFile(xml_path)
+#     jpg_path = os.path.join(directory, 'images', pairname + '.jpg')
+#     return jpg_path, label
 
 
 if __name__ == '__main__':
