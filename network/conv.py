@@ -3,8 +3,8 @@ import tensorflow as tf
 from tensorflow.contrib import slim
 
 def addLayer(net, depth, name):
-    net = slim.conv2d(net, depth, [3, 3], padding='VALID', scope='conva_' + name)
-    net = slim.conv2d(net, depth, [3, 3], padding='VALID', scope='convb_' + name)
+    net = slim.conv2d(net, depth, [3, 3], padding='SAME', scope='conva_' + name)
+    net = slim.conv2d(net, depth, [3, 3], padding='SAME', scope='convb_' + name)
     net = slim.max_pool2d(net, [2, 2], scope='pool_' + name)
     return net
 
@@ -14,13 +14,15 @@ def deepEncoder(image):
                         weights_initializer=tf.truncated_normal_initializer(0.0, 0.05),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = image
+        net = addLayer(net, 8, '0')
         net = addLayer(net, 8, '1')
-        net = addLayer(net, 8, '2')
+        net = addLayer(net, 16, '2')
         net = addLayer(net, 16, '3')
-        net = addLayer(net, 16, '4')
+        net = addLayer(net, 32, '4')
         net = addLayer(net, 32, '5')
-        net = addLayer(net, 32, '6')
+        net = addLayer(net, 64, '6')
         net = addLayer(net, 64, '7')
+        net = addLayer(net, 64, '8')
         return net
 
 
