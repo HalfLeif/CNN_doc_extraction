@@ -5,6 +5,7 @@ import preprocess.grayscale as gray
 import scoring as sc
 
 import tensorflow as tf
+from tensorflow.python.client import timeline
 
 import os
 
@@ -78,6 +79,20 @@ def train():
         if (i%5 == 0):
             savepath = saver.save(sess, model_path, global_step=i)
 
+def runTimeEstimate(sess):
+    ''' Creates timeline-file for debugging expensive operations.
+        Open file with chrome://tracing.
+    '''
+    run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+    run_metadata = tf.RunMetadata()
+
+    sess.run(train_step, feed_dict={keep_prob: 0.5}, options=run_options, run_metadata=run_metadata)
+
+    tl = timeline.Timeline(run_metadata.step_stats)
+    ctf = tl.generate_chrome_trace_format()
+    with open('data\\timeline.json', 'w') as f:
+        f.write(ctf)
+    print('WROTE TIMELINE')
 
 with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
@@ -89,6 +104,7 @@ with tf.Session(config=tf.ConfigProto(
     threads = tf.train.start_queue_runners(coord=coord)
 
     train()
+    # runTimeEstimate(sess)
 
     coord.request_stop()
     coord.join(threads)
