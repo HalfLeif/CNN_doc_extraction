@@ -71,15 +71,7 @@ def writeReEncoded():
     with open('data\\temp.jpg', 'wb+') as f:
         f.write(b)
 
-with tf.Session(config=tf.ConfigProto(
-        intra_op_parallelism_threads=NUM_THREADS)) as sess:
-    print('INIT VARIABLES!')
-    sess.run(tf.global_variables_initializer())
-
-    saver = tf.train.Saver(max_to_keep=5)
-    coord = tf.train.Coordinator()
-    threads = tf.train.start_queue_runners(coord=coord)
-
+def train():
     num_batches = int(len(all_jpgs)/BATCH_SIZE)
     for i in range(num_batches):
         print('BATCH', i)
@@ -92,6 +84,18 @@ with tf.Session(config=tf.ConfigProto(
 
         if (i%5 == 0):
             savepath = saver.save(sess, model_path, global_step=i)
+
+
+with tf.Session(config=tf.ConfigProto(
+        intra_op_parallelism_threads=NUM_THREADS)) as sess:
+    print('INIT VARIABLES!')
+    sess.run(tf.global_variables_initializer())
+
+    saver = tf.train.Saver(max_to_keep=5)
+    coord = tf.train.Coordinator()
+    threads = tf.train.start_queue_runners(coord=coord)
+
+    train()
 
     coord.request_stop()
     coord.join(threads)
