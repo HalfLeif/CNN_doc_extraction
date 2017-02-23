@@ -11,18 +11,19 @@ def addLayer(net, depth, name):
 def deepEncoder(image):
     with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,
-                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.05),
+                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = image
-        net = addLayer(net, 8, '0')
-        net = addLayer(net, 8, '1')
-        net = addLayer(net, 16, '2')
-        net = addLayer(net, 16, '3')
-        net = addLayer(net, 32, '4')
-        net = addLayer(net, 32, '5')
-        net = addLayer(net, 64, '6')
+        net = addLayer(net, 16, '0')
+        net = addLayer(net, 32, '2')
+        net = addLayer(net, 64, '4')
+        # Now each unit has a receptive field of 36x36, enough to cover digits
+
         net = addLayer(net, 64, '7')
+        net = slim.max_pool2d(net, [4, 4], scope='pool_7x')
         net = addLayer(net, 64, '8')
+        net = slim.max_pool2d(net, [4, 4], scope='pool_8x')
+        net = addLayer(net, 64, '9')
         return net
 
 

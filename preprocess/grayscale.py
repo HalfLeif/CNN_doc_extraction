@@ -3,6 +3,15 @@ import tensorflow as tf
 
 import preprocess.image_transform as it
 
+def simpleRemap(image):
+    ''' Takes image with pixel values in [0-255]. Remaps to floating [0-1].'''
+    max_pixel = tf.reduce_max(image)
+    min_pixel = tf.reduce_min(image)
+
+    result = (image - min_pixel) / (max_pixel - min_pixel)
+    return result
+
+
 ''' Input: image tensor of shape [width, height, channels]
            and global threshold.
     Output: boolean image tensor of shape [width, height, channels].
