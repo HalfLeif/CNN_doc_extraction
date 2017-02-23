@@ -14,16 +14,36 @@ def deepEncoder(image):
                         weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = image
-        net = addLayer(net, 16, '0')
-        net = addLayer(net, 32, '2')
-        net = addLayer(net, 64, '4')
-        # Now each unit has a receptive field of 36x36, enough to cover digits
+        net = slim.conv2d(net, 5, [3, 3], padding='VALID', scope='conv_0')
+        net = slim.max_pool2d(net, [2, 2], scope='pool_0')
 
-        net = addLayer(net, 64, '7')
-        net = slim.max_pool2d(net, [4, 4], scope='pool_7x')
-        net = addLayer(net, 64, '8')
-        net = slim.max_pool2d(net, [4, 4], scope='pool_8x')
-        net = addLayer(net, 64, '9')
+        net = slim.conv2d(net, 5, [3, 3], padding='VALID', scope='conv_1a')
+        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_1b')
+        net = slim.max_pool2d(net, [2, 2], scope='pool_1')
+
+        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_2a')
+        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_2b')
+        # Receptive field of 24x24
+        net = slim.max_pool2d(net, [2, 2], scope='pool_2')
+
+        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_3a')
+        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_3b')
+        net = slim.max_pool2d(net, [4, 4], scope='pool_3a')
+        net = slim.max_pool2d(net, [4, 4], scope='pool_3b')
+
+        net = slim.conv2d(net, 20, [3, 3], padding='VALID', scope='conv_4')
+        net = slim.max_pool2d(net, [4, 4], scope='pool_4')
+
+        # net = addLayer(net, 16, '0')
+        # net = addLayer(net, 32, '2')
+        # net = addLayer(net, 64, '4')
+        # # Now each unit has a receptive field of 36x36, enough to cover digits
+        #
+        # net = addLayer(net, 64, '7')
+        # net = slim.max_pool2d(net, [4, 4], scope='pool_7x')
+        # net = addLayer(net, 64, '8')
+        # net = slim.max_pool2d(net, [4, 4], scope='pool_8x')
+        # net = addLayer(net, 64, '9')
         return net
 
 
@@ -80,6 +100,9 @@ def decodeNumber(net, keep_prob):
         net = slim.fully_connected(net, 1024, scope='fc1')
         net = slim.dropout(net, keep_prob, scope='dropout1')
 
+        net = slim.fully_connected(net, 512, scope='fc2')
+        net = slim.dropout(net, keep_prob, scope='dropout2')
+
         ignore = slim.fully_connected(net, 2, activation_fn=None, scope='ignore')
         digit1 = slim.fully_connected(net, 10, activation_fn=None, scope='digit1')
         digit2 = slim.fully_connected(net, 10, activation_fn=None, scope='digit2')
@@ -88,11 +111,11 @@ def decodeNumber(net, keep_prob):
         # Note: this adds redundancy but is necessary
         # in order to require the exact year
         # instead of giving credit for partially correct year transcriptions.
-        # stacked_digits = tf.stack([digit1, digit2, digit3], axis=1)
-        # numbers = tf.map_fn(expandDigits, stacked_digits)
-        # return ignore, numbers
+        stacked_digits = tf.stack([digit1, digit2, digit3], axis=1)
+        numbers = tf.map_fn(expandDigits, stacked_digits)
+        return ignore, numbers
 
-        return ignore, [digit1, digit2, digit3]
+        # return ignore, [digit1, digit2, digit3]
 
 
 def lenet5(image, keep_prob):

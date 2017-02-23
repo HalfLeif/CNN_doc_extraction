@@ -64,6 +64,7 @@ def writeReEncoded():
     b = re_encoded.eval(feed_dict={keep_prob: 1.0})
     with open('data\\temp.jpg', 'wb+') as f:
         f.write(b)
+    print('WROTE RE-ENCODED IMAGE')
 
 def train():
     num_batches = int(len(all_jpgs)/BATCH_SIZE)
@@ -104,6 +105,7 @@ with tf.Session(config=tf.ConfigProto(
     threads = tf.train.start_queue_runners(coord=coord)
 
     train()
+    # writeReEncoded()
     # runTimeEstimate(sess)
 
     coord.request_stop()

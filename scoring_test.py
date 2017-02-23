@@ -4,34 +4,34 @@ import tensorflow as tf
 
 class ScoringTest(tf.test.TestCase):
 
-    def digitEqual(self, digit, expected_digit):
-        expected = tf.one_hot(expected_digit, 10)
-        self.assertAllEqual(digit.eval(), expected.eval())
-
-    def testEncodeLabel(self):
-        with self.test_session():
-            label = sc.encodeYear(1891)
-            self.assertAllEqual(len(label), 3)
-            self.digitEqual(label[0], 8)
-            self.digitEqual(label[1], 9)
-            self.digitEqual(label[2], 1)
-
-    def testPrediction(self):
-        with self.test_session():
-            year_prob = sc.encodeYear(1881)
-            decision = tf.constant([0,1], tf.float32)
-
-            # Expand dims to create a batch with one unit
-            year_prob = [tf.expand_dims(d, axis=0) for d in year_prob]
-            decision = tf.expand_dims(decision, axis=0)
-
-            year = sc.predict(decision, year_prob)
-            self.assertAllEqual(year.eval(), [1881])
-
-            decision = tf.constant([0.6,0.4], tf.float32)
-            decision = tf.expand_dims(decision, axis=0)
-            year = sc.predict(decision, year_prob)
-            self.assertAllEqual(year.eval(), [-1])
+    # def digitEqual(self, digit, expected_digit):
+    #     expected = tf.one_hot(expected_digit, 10)
+    #     self.assertAllEqual(digit.eval(), expected.eval())
+    #
+    # def testEncodeLabel(self):
+    #     with self.test_session():
+    #         label = sc.encodeYear(1891)
+    #         self.assertAllEqual(len(label), 3)
+    #         self.digitEqual(label[0], 8)
+    #         self.digitEqual(label[1], 9)
+    #         self.digitEqual(label[2], 1)
+    #
+    # def testPrediction(self):
+    #     with self.test_session():
+    #         year_prob = sc.encodeYear(1881)
+    #         decision = tf.constant([0,1], tf.float32)
+    #
+    #         # Expand dims to create a batch with one unit
+    #         year_prob = [tf.expand_dims(d, axis=0) for d in year_prob]
+    #         decision = tf.expand_dims(decision, axis=0)
+    #
+    #         year = sc.predict(decision, year_prob)
+    #         self.assertAllEqual(year.eval(), [1881])
+    #
+    #         decision = tf.constant([0.6,0.4], tf.float32)
+    #         decision = tf.expand_dims(decision, axis=0)
+    #         year = sc.predict(decision, year_prob)
+    #         self.assertAllEqual(year.eval(), [-1])
 
 
     def testError_hasNumber(self):
