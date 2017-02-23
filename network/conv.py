@@ -74,7 +74,7 @@ def decodeNumber(net, keep_prob):
     '''
     with slim.arg_scope([slim.fully_connected],
                         activation_fn=tf.nn.relu,
-                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.1),
+                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = slim.flatten(net)
         net = slim.fully_connected(net, 1024, scope='fc1')
@@ -88,10 +88,11 @@ def decodeNumber(net, keep_prob):
         # Note: this adds redundancy but is necessary
         # in order to require the exact year
         # instead of giving credit for partially correct year transcriptions.
-        stacked_digits = tf.stack([digit1, digit2, digit3], axis=1)
-        numbers = tf.map_fn(expandDigits, stacked_digits)
+        # stacked_digits = tf.stack([digit1, digit2, digit3], axis=1)
+        # numbers = tf.map_fn(expandDigits, stacked_digits)
+        # return ignore, numbers
 
-        return ignore, numbers
+        return ignore, [digit1, digit2, digit3]
 
 
 def lenet5(image, keep_prob):

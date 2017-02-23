@@ -54,14 +54,7 @@ decision_prob, year_prob = conv.decodeNumber(activation, keep_prob)
 error = sc.error(batch_years, decision_prob, year_prob)
 train_step = tf.train.AdamOptimizer(1e-4).minimize(error)
 
-def prediction(decision_prob, year_prob):
-    decision = tf.argmax(decision_prob, axis=1)
-    year = 1000 + tf.argmax(year_prob, axis=1)
-
-    # decision is either 0 or 1, so returns -1 or `year`.
-    return tf.cast(decision*year + (decision-1), tf.int32)
-
-pred = prediction(decision_prob, year_prob)
+pred = sc.predict(decision_prob, year_prob)
 correct_prediction = tf.equal(batch_years, pred)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 accuracy = tf.Print(accuracy, ['Compare ', batch_years, pred], summarize=BATCH_SIZE)
