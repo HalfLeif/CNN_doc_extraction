@@ -78,14 +78,17 @@ def switchFirstTwo(ds):
     return ds
 
 def expandDigits(digit_stack):
-    ''' Takes a stack of digit vectors probabilities, shape=[N, 10],
-        returns a single vector of probabilities, shape=[10**N].
+    ''' Takes a stack of N vectors of digit log probabilities,
+        returns a single vector of number log probabilities with shape=[10**N].
     '''
     digit_list = switchFirstTwo(tf.unstack(digit_stack))
     meshes = tf.meshgrid(*digit_list)
-    product = tf.foldr(tf.multiply, meshes)
-    number = tf.reshape(product, [-1])
-    return number
+
+    # Note: must add here instead of multiply
+    # because probabilities are on log form.
+    sum_log = tf.foldr(tf.add, meshes)
+    number_log = tf.reshape(sum_log, [-1])
+    return number_log
 
 
 def decodeNumber(net, keep_prob):
