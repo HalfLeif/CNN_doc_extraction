@@ -12,20 +12,20 @@ def deepEncoder(image):
     with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,
                         padding='SAME',
-                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),
+                        weights_initializer=tf.truncated_normal_initializer(0.0, 0.1),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = image
-        net = slim.conv2d(net, 5, [3, 3], scope='conv_0')
-        net = slim.max_pool2d(net, [2, 2], scope='pool_0')
-
-        net = slim.conv2d(net, 5, [3, 3], scope='conv_1a')
-        net = slim.conv2d(net, 10, [3, 3], scope='conv_1b')
-        net = slim.max_pool2d(net, [2, 2], scope='pool_1')
-
-        net = slim.conv2d(net, 10, [3, 3], scope='conv_2a')
-        net = slim.conv2d(net, 10, [3, 3], scope='conv_2b')
-        # Receptive field of 24x24
-        net = slim.max_pool2d(net, [2, 2], scope='pool_2')
+        # net = slim.conv2d(net, 5, [3, 3], scope='conv_0')
+        # net = slim.max_pool2d(net, [2, 2], scope='pool_0')
+        #
+        # net = slim.conv2d(net, 5, [3, 3], scope='conv_1a')
+        # net = slim.conv2d(net, 10, [3, 3], scope='conv_1b')
+        # net = slim.max_pool2d(net, [2, 2], scope='pool_1')
+        #
+        # net = slim.conv2d(net, 10, [3, 3], scope='conv_2a')
+        # net = slim.conv2d(net, 10, [3, 3], scope='conv_2b')
+        # # Receptive field of 24x24
+        # net = slim.max_pool2d(net, [2, 2], scope='pool_2')
 
         # net = slim.conv2d(net, 10, [3, 3], scope='conv_3a')
         # net = slim.conv2d(net, 10, [3, 3], scope='conv_3b')
@@ -35,9 +35,9 @@ def deepEncoder(image):
         # net = slim.conv2d(net, 20, [3, 3], scope='conv_4')
         # net = slim.max_pool2d(net, [4, 4], scope='pool_4')
 
-        # net = addLayer(net, 16, '0')
-        # net = addLayer(net, 32, '2')
-        # net = addLayer(net, 64, '4')
+        net = addLayer(net, 32, '0')
+        net = addLayer(net, 64, '2')
+        net = addLayer(net, 128, '4')
         # # Now each unit has a receptive field of 36x36, enough to cover digits
         #
         # net = addLayer(net, 64, '7')
@@ -104,8 +104,8 @@ def decodeNumber(net, keep_prob):
         net = slim.fully_connected(net, 1024, scope='fc1')
         net = slim.dropout(net, keep_prob, scope='dropout1')
 
-        net = slim.fully_connected(net, 512, scope='fc2')
-        net = slim.dropout(net, keep_prob, scope='dropout2')
+        # net = slim.fully_connected(net, 512, scope='fc2')
+        # net = slim.dropout(net, keep_prob, scope='dropout2')
 
         ignore = slim.fully_connected(net, 2, activation_fn=None, scope='ignore')
         digit1 = slim.fully_connected(net, 10, activation_fn=None, scope='digit1')

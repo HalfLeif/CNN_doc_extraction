@@ -13,10 +13,12 @@ import os
 import sys
 import numpy
 
+NUM_THREADS=4
 
 model_path = 'models'
 mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
-sess = tf.InteractiveSession()
+sess = tf.InteractiveSession(config=tf.ConfigProto(
+        intra_op_parallelism_threads=NUM_THREADS))
 
 
 # Input
@@ -41,7 +43,7 @@ sess.run(tf.global_variables_initializer())
 def train():
     saver = tf.train.Saver(max_to_keep=5)
 
-    for i in range(1000):
+    for i in range(20000):
         # original range: 20000
         batch = mnist.train.next_batch(50)
         if i%100 == 0:

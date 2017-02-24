@@ -61,7 +61,8 @@ error = sc.error(batch_years, decision_prob, year_prob)
 train_step = tf.train.AdamOptimizer(1e-4).minimize(error)
 
 pred = sc.predict(decision_prob, year_prob)
-correct_prediction = tf.equal(batch_years, pred)
+remapped = tf.mod(batch_years, 1000) + 1000
+correct_prediction = tf.equal(remapped, pred)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 accuracy = tf.Print(accuracy, ['Compare ', batch_years, pred], summarize=BATCH_SIZE)
 
@@ -83,7 +84,7 @@ def train():
 
         train_step.run(feed_dict={keep_prob: 0.5})
 
-        if (i%50 == 0):
+        if (i%50 == 0 and i > 0):
             savepath = saver.save(sess, model_path, global_step=i)
 
 def runTimeEstimate(sess):
