@@ -81,6 +81,9 @@ def otsusGlobalThreshold(image):
     cropped = it.cropEdges(image)
     array = tf.reshape(cropped, shape=[-1])
     pixelValues, _, counts = tf.unique_with_counts(array)
+
+    # TODO: use tf.scatter_nd to generate histogram!
+
     threshold = tf.py_func(pyOtsusGlobalThreshold, [pixelValues, counts], tf.uint8, stateful=False)
 
     binarized = binarizeGlobal(image, threshold)

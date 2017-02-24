@@ -11,28 +11,29 @@ def addLayer(net, depth, name):
 def deepEncoder(image):
     with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,
+                        padding='SAME',
                         weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = image
-        net = slim.conv2d(net, 5, [3, 3], padding='VALID', scope='conv_0')
+        net = slim.conv2d(net, 5, [3, 3], scope='conv_0')
         net = slim.max_pool2d(net, [2, 2], scope='pool_0')
 
-        net = slim.conv2d(net, 5, [3, 3], padding='VALID', scope='conv_1a')
-        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_1b')
+        net = slim.conv2d(net, 5, [3, 3], scope='conv_1a')
+        net = slim.conv2d(net, 10, [3, 3], scope='conv_1b')
         net = slim.max_pool2d(net, [2, 2], scope='pool_1')
 
-        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_2a')
-        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_2b')
+        net = slim.conv2d(net, 10, [3, 3], scope='conv_2a')
+        net = slim.conv2d(net, 10, [3, 3], scope='conv_2b')
         # Receptive field of 24x24
         net = slim.max_pool2d(net, [2, 2], scope='pool_2')
 
-        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_3a')
-        net = slim.conv2d(net, 10, [3, 3], padding='VALID', scope='conv_3b')
-        net = slim.max_pool2d(net, [4, 4], scope='pool_3a')
-        net = slim.max_pool2d(net, [4, 4], scope='pool_3b')
-
-        net = slim.conv2d(net, 20, [3, 3], padding='VALID', scope='conv_4')
-        net = slim.max_pool2d(net, [4, 4], scope='pool_4')
+        # net = slim.conv2d(net, 10, [3, 3], scope='conv_3a')
+        # net = slim.conv2d(net, 10, [3, 3], scope='conv_3b')
+        # net = slim.max_pool2d(net, [4, 4], scope='pool_3a')
+        # net = slim.max_pool2d(net, [4, 4], scope='pool_3b')
+        #
+        # net = slim.conv2d(net, 20, [3, 3], scope='conv_4')
+        # net = slim.max_pool2d(net, [4, 4], scope='pool_4')
 
         # net = addLayer(net, 16, '0')
         # net = addLayer(net, 32, '2')

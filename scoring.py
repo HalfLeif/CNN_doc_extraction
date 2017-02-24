@@ -10,7 +10,8 @@ def encodeYear(year):
     # hundreds = tf.mod(year, 10)
     #
     # return [tf.one_hot(d, 10) for d in [hundreds, tens, ones]]
-    return tf.one_hot(year-1000, 1000)
+    number = tf.mod(year, 1000)
+    return tf.one_hot(number, 1000)
 
 
 def predict(decision_prob, year_prob):
