@@ -107,7 +107,7 @@ def decodeNumber(net, keep_prob):
         # net = slim.fully_connected(net, 512, scope='fc2')
         # net = slim.dropout(net, keep_prob, scope='dropout2')
 
-        ignore = slim.fully_connected(net, 2, activation_fn=None, scope='ignore')
+        # ignore = slim.fully_connected(net, 2, activation_fn=None, scope='ignore')
         digit1 = slim.fully_connected(net, 10, activation_fn=None, scope='digit1')
         digit2 = slim.fully_connected(net, 10, activation_fn=None, scope='digit2')
         digit3 = slim.fully_connected(net, 10, activation_fn=None, scope='digit3')
@@ -117,7 +117,8 @@ def decodeNumber(net, keep_prob):
         # instead of giving credit for partially correct year transcriptions.
         stacked_digits = tf.stack([digit1, digit2, digit3], axis=1)
         numbers = tf.map_fn(expandDigits, stacked_digits)
-        return ignore, numbers
+        # return ignore, numbers
+        return numbers
 
         # return ignore, [digit1, digit2, digit3]
 
