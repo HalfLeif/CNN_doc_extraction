@@ -18,7 +18,7 @@ def mnistSample(train_mode):
     imgs, labels = mnistData(train_mode)
     digit_labels = tf.argmax(labels, axis=1)
     digit_labels = tf.cast(digit_labels, tf.int32)
-    shuffled = tf.train.slice_input_producer([imgs, digit_labels], shuffle=True, seed=0)
+    shuffled = tf.train.slice_input_producer([imgs, digit_labels], shuffle=True, seed=None)
     four_images, four_labels = tf.train.batch(shuffled, batch_size=4)
 
     four_images = tf.reshape(four_images, [4, 28, 28])
