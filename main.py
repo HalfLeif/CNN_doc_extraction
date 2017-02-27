@@ -88,8 +88,11 @@ def trainOp():
     return train_step
 
 def py_printCompare(expected, output):
-    for i in range(len(expected)):
-        print(expected[i], '->', output[i])
+    iterations = min(len(expected), 100)
+    for i in range(iterations):
+        print(' ', expected[i], '->', output[i])
+
+    print('In total ' + str(len(expected)) + ' pairs evaluated...')
     return 0
 
 def evalOp():
