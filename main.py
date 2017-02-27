@@ -5,6 +5,7 @@ import preprocess.grayscale as gray
 import pretrain.mnist as mnist
 import scoring as sc
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.python.client import timeline
 
@@ -31,6 +32,22 @@ def loadImage(jpg_path):
     # x = tf.cast(x, tf.uint8)
     # x, _ = gray.otsusGlobalThreshold(x)
     return x
+
+def numParams():
+    def varParams(var):
+        prod = 1
+        for dim in var.get_shape():
+            prod = prod * dim.value
+        return prod
+
+    num_params = 0
+    for var in tf.trainable_variables():
+        num_params = num_params + varParams(var)
+    return num_params
+
+
+def printNumParams():
+    print('# PARAMETERS: ', numParams())
 
 # Preload labels
 # all_jpgs, all_years = iris.loadTranscriptions(iris_train)
@@ -115,6 +132,7 @@ def runTimeEstimate(sess):
 
 with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
+    printNumParams()
     print('INIT VARIABLES!')
     sess.run(tf.global_variables_initializer())
 
