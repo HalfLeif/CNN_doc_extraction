@@ -18,6 +18,7 @@ def deepEncoder(image):
         net = addLayer(net, 32, '0')
         net = addLayer(net, 64, '2')
         net = addLayer(net, 128, '4')
+        net = slim.conv2d(net, 128, [1, 5], padding='SAME', scope='conv_wide')
         return net
 
 def attend_vector(feature_vector, keep_prob):
