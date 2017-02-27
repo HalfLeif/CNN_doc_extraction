@@ -18,7 +18,8 @@ def deepEncoder(image):
         net = addLayer(net, 32, '0')
         net = addLayer(net, 64, '2')
         net = addLayer(net, 128, '4')
-        net = slim.conv2d(net, 128, [1, 5], padding='SAME', scope='conv_wide')
+        net = slim.conv2d(net, 256, [1, 5], padding='VALID', scope='conv_wide')
+        net = slim.max_pool2d(net, [1, 2], scope='pool_wide')
         return net
 
 def attend_vector(feature_vector, keep_prob):
@@ -30,11 +31,11 @@ def attend_vector(feature_vector, keep_prob):
                         weights_regularizer=slim.l2_regularizer(0.0005)):
 
         net = tf.expand_dims(feature_vector, 0)
-        net = slim.fully_connected(net, 1024, scope='attend_1')
+        net = slim.fully_connected(net, 256, scope='attend_1')
         net = slim.dropout(net, keep_prob, scope='att_dropout1')
 
-        net = slim.fully_connected(net, 128, scope='attend_2')
-        net = slim.dropout(net, keep_prob, scope='att_dropout2')
+        # net = slim.fully_connected(net, 64, scope='attend_2')
+        # net = slim.dropout(net, keep_prob, scope='att_dropout2')
 
         attention = slim.fully_connected(net, 1, activation_fn=tf.sigmoid, scope='attend_out')
         return tf.squeeze(attention)
