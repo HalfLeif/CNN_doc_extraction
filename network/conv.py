@@ -37,7 +37,7 @@ def attend_vector(feature_vector, keep_prob):
         # net = slim.fully_connected(net, 64, scope='attend_2')
         # net = slim.dropout(net, keep_prob, scope='att_dropout2')
 
-        attention = slim.fully_connected(net, 1, activation_fn=tf.sigmoid, scope='attend_out')
+        attention = slim.fully_connected(net, 1, activation_fn=tf.nn.relu, scope='attend_out')
         return tf.squeeze(attention)
 
 def attend_image(activation_3d, keep_prob):
@@ -49,7 +49,7 @@ def attend_image(activation_3d, keep_prob):
     atts = tf.map_fn(lambda vectors: tf.map_fn(lambda vec: attend_vector(vec, keep_prob), vectors), activation_3d)
     print('ATTS', atts.get_shape())
     weighted = tf.expand_dims(atts, -1) * activation_3d
-    vector = tf.reduce_sum(weighted, axis=[0, 1]) / tf.reduce_sum(atts)
+    vector = tf.reduce_sum(weighted, axis=[0, 1]) / (1 + tf.reduce_sum(atts))
     return vector
 
 def attend(net, keep_prob):
