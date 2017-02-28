@@ -5,9 +5,8 @@ from tensorflow.examples.tutorials.mnist import input_data
 # TODO REMOVE:
 import sys
 
-mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
-
 def mnistData(train_mode):
+    mnist = input_data.read_data_sets('MNIST_data', one_hot=False)
     if train_mode:
         return mnist.train.images, mnist.train.labels
     else:
@@ -16,16 +15,16 @@ def mnistData(train_mode):
 def mnistSample(train_mode):
     ''' Returns two tensors: a four digit image and its label.'''
     imgs, labels = mnistData(train_mode)
-    digit_labels = tf.argmax(labels, axis=1)
-    digit_labels = tf.cast(digit_labels, tf.int32)
-    shuffled = tf.train.slice_input_producer([imgs, digit_labels], shuffle=True, seed=None)
+    shuffled = tf.train.slice_input_producer([imgs, labels], shuffle=True, seed=None)
     four_images, four_labels = tf.train.batch(shuffled, batch_size=4)
+    print('FOUR LABELS', four_labels.get_shape())
 
     four_images = tf.reshape(four_images, [4, 28, 28])
     image_list = tf.unstack(four_images)
     stacked = tf.stack(image_list, axis=1)
     wide_image = tf.map_fn(lambda row: tf.reshape(row, [4*28, 1]), stacked)
 
+    four_labels = tf.cast(four_labels, tf.int32)
     year = tf.reduce_sum(four_labels * tf.constant([1000, 100, 10, 1], tf.int32))
     return wide_image, year
 
