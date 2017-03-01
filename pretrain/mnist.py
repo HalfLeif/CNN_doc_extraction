@@ -10,7 +10,9 @@ def mnistData(train_mode):
         return mnist.test.images, mnist.test.labels
 
 def mnistSample(train_mode):
-    ''' Returns two tensors: a four digit image and its label.'''
+    ''' Returns two tensors: a four digit image and its label.
+        MNIST images uses 1.0 for ink and 0.0 for background.
+    '''
     imgs, labels = mnistData(train_mode)
     shuffled = tf.train.slice_input_producer([imgs, labels], shuffle=True, seed=None)
     four_images, four_labels = tf.train.batch(shuffled, batch_size=4)
@@ -20,9 +22,6 @@ def mnistSample(train_mode):
     image_list = tf.unstack(four_images)
     stacked = tf.stack(image_list, axis=1)
     wide_image = tf.map_fn(lambda row: tf.reshape(row, [4*28, 1]), stacked)
-
-    # MNIST images use 1.0 for black values and 0 for white so need to invert:
-    wide_image = 1 - wide_image
 
     four_labels = tf.cast(four_labels, tf.int32)
     year = tf.reduce_sum(four_labels * tf.constant([1000, 100, 10, 1], tf.int32))
