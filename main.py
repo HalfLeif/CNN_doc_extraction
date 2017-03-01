@@ -145,7 +145,7 @@ def evalOp(pretrain=True):
     if pretrain:
         batch_images, batch_years = mnist.mnistBatch(eval_batch_size, False)
     else:
-        batch_images, batch_years = irisQueue(iris_test, 5)
+        batch_images, batch_years = irisQueue(iris_test, 1)
     remapped = tf.mod(batch_years, 1000) + 1000
     year_prob = runNetwork(batch_images, False)
     pred = sc.predict(year_prob)
@@ -156,12 +156,12 @@ def evalOp(pretrain=True):
     accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
     return accuracy
 
-pretrain_mnist = True
+pretrain_mnist = False
 train_step = trainOp(pretrain_mnist)
 accuracy = evalOp(pretrain_mnist)
 
 def train():
-    saver = tf.train.Saver(max_to_keep=5)
+    saver = tf.train.Saver(max_to_keep=3)
 
     if pretrain_mnist:
         num_batches = int(55000/MNIST_BATCH_SIZE)
@@ -218,8 +218,8 @@ with tf.Session(config=tf.ConfigProto(
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='pretrain_invert_mnist-1099')
+    # loadModel(sess, model_name=None)
+    loadModel(sess, model_name='soft_attention_3-1099')
 
     print('System ready!')
 
