@@ -10,6 +10,7 @@ import tensorflow as tf
 from tensorflow.python.client import timeline
 
 import os
+import time
 
 # TODO: replace with FLAGS
 model_name = 'pretrain_debug'
@@ -156,7 +157,7 @@ def evalOp(pretrain=True):
     accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
     return accuracy
 
-pretrain_mnist = False
+pretrain_mnist = True
 train_step = trainOp(pretrain_mnist)
 accuracy = evalOp(pretrain_mnist)
 
@@ -219,14 +220,18 @@ with tf.Session(config=tf.ConfigProto(
     threads = tf.train.start_queue_runners(coord=coord)
 
     # loadModel(sess, model_name=None)
-    loadModel(sess, model_name='soft_attention_3-1099')
+    loadModel(sess, model_name='pretrain_mnist_att-549')
 
     print('System ready!')
+    time_start = time.process_time()
 
     accuracy.eval(feed_dict={eval_batch_size: 2000})
     # train()
     # writeReEncoded()
     # runTimeEstimate(sess)
+
+    time_end = time.process_time()
+    print('CPU time: ', time_end - time_start)
 
     coord.request_stop()
     coord.join(threads)
