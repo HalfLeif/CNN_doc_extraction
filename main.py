@@ -61,9 +61,19 @@ def printNumParams():
 # image = loadImage(jpg_path)
 # batch_images, batch_years = tf.train.batch([image, year], batch_size=MNIST_BATCH_SIZE)
 
-# DEBUG
-# restore = tf.cast(image*255, tf.uint8)
-# re_encoded = tf.image.encode_jpeg(restore)
+def py_WriteImage(re_encoded):
+    with open('data\\temp.jpg', 'wb+') as f:
+        f.write(re_encoded)
+    print('WROTE RE-ENCODED IMAGE')
+    return 0
+
+def debugImage(image):
+    image = tf.squeeze(image)
+    image = tf.expand_dims(image, -1)
+    restore = tf.cast(image*255, tf.uint8)
+    re_encoded = tf.image.encode_jpeg(restore)
+    write_op = tf.py_func(py_WriteImage, [re_encoded], tf.int32, stateful=True)
+    return write_op
 
 def runNetwork(batch_images, train_mode):
     if train_mode:
@@ -79,6 +89,13 @@ def runNetwork(batch_images, train_mode):
     print('Attention: ', attention.get_shape())
 
     attended = tf.reduce_sum(activation * attention, [1, 2])
+
+    # DEBUG by writing image to file
+    # TODO: debug attention model
+    first_image = tf.slice(batch_images, [0, 0, 0, 0], [1, -1, -1, -1])
+    # first_attention = tf.slice(attention, [0, 0, 0, 0], [1, -1, -1, -1])
+    attended = tf.Print(attended, [debugImage(first_image)])
+
     print('Attend: ', attended.get_shape())
     year_prob = conv.decodeNumber(attended, keep_prob)
     return year_prob
@@ -142,12 +159,6 @@ def evalOp(pretrain=True):
 pretrain_mnist = True
 train_step = trainOp(pretrain_mnist)
 accuracy = evalOp(pretrain_mnist)
-
-def writeReEncoded():
-    b = re_encoded.eval()
-    with open('data\\temp.jpg', 'wb+') as f:
-        f.write(b)
-    print('WROTE RE-ENCODED IMAGE')
 
 def train():
     saver = tf.train.Saver(max_to_keep=5)
