@@ -75,7 +75,10 @@ def runNetwork(batch_images, train_mode):
     activation = conv.deepEncoder(batch_images)
     print('Batch embedding:', activation.get_shape())
 
-    attended = conv.attend(activation, keep_prob)
+    attention = conv.attend(activation, keep_prob)
+    print('Attention: ', attention.get_shape())
+
+    attended = tf.reduce_sum(activation * attention, [1, 2])
     print('Attend: ', attended.get_shape())
     year_prob = conv.decodeNumber(attended, keep_prob)
     return year_prob
@@ -209,8 +212,8 @@ with tf.Session(config=tf.ConfigProto(
 
     print('System ready!')
 
-    # accuracy.eval(feed_dict={eval_batch_size: 2000})
-    train()
+    accuracy.eval(feed_dict={eval_batch_size: 10})
+    # train()
     # writeReEncoded()
     # runTimeEstimate(sess)
 

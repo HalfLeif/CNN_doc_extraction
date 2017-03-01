@@ -24,7 +24,6 @@ def deepEncoder(image):
 
 def attend_vector(feature_vector, keep_prob):
     ''' Returns a scalar in range [0-1] for this activation unit.'''
-    print('ATT_VECTOR', feature_vector.get_shape())
     with slim.arg_scope([slim.fully_connected],
                         activation_fn=tf.nn.relu,
                         weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),
@@ -42,24 +41,18 @@ def attend_vector(feature_vector, keep_prob):
 
 def attend_image(activation_3d, keep_prob):
     ''' Takes an activation map with units of depth D,
-        returns a weighted sum of the activation units for each batch item.
-        The weights in the sum is determined by a neural network.'''
-
-    print('ATT_IMAGE', activation_3d.get_shape())
+        returns the normalized attention weights for each batch item.'''
     atts = tf.map_fn(lambda vectors: tf.map_fn(lambda vec: attend_vector(vec, keep_prob), vectors), activation_3d)
-    print('ATTS', atts.get_shape())
 
     # Softmax on attention over all dimensions:
     atts = tf.exp(atts)
     atts = atts / tf.reduce_sum(atts)
-
-    weighted = tf.expand_dims(atts, -1) * activation_3d
-    vector = tf.reduce_sum(weighted, axis=[0, 1])
-    return vector
+    return atts
 
 def attend(net, keep_prob):
-    ''' Performs soft attention for all activations in this batch.'''
-    return tf.map_fn(lambda img: attend_image(img, keep_prob), net)
+    ''' Computes soft attention for all activations in this batch.'''
+    atts = tf.map_fn(lambda img: attend_image(img, keep_prob), net)
+    return tf.expand_dims(atts, -1)
 
 
 def switchFirstTwo(ds):
