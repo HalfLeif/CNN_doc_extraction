@@ -52,29 +52,6 @@ def numParams():
 def printNumParams():
     print('# PARAMETERS: ', numParams())
 
-# Preload labels
-# all_jpgs, all_years = iris.loadTranscriptions(iris_train)
-# jpgs = tf.constant(all_jpgs, tf.string)
-# years = tf.constant(all_years, tf.int32)
-
-# Input pipeline
-# jpg_path, year = tf.train.slice_input_producer([jpgs, years], shuffle=True)
-# image = loadImage(jpg_path)
-# batch_images, batch_years = tf.train.batch([image, year], batch_size=MNIST_BATCH_SIZE)
-
-def py_WriteImage(re_encoded):
-    with open('data\\temp.jpg', 'wb+') as f:
-        f.write(re_encoded)
-    print('WROTE RE-ENCODED IMAGE')
-    return 0
-
-def debugImage(image):
-    image = tf.squeeze(image)
-    image = tf.expand_dims(image, -1)
-    restore = tf.cast(image*255, tf.uint8)
-    re_encoded = tf.image.encode_jpeg(restore)
-    write_op = tf.py_func(py_WriteImage, [re_encoded], tf.int32, stateful=True)
-    return write_op
 
 def runNetwork(batch_images, train_mode):
     if train_mode:
@@ -158,7 +135,7 @@ def evalOp(pretrain=True):
 
     return accuracy
 pretrain_mnist = True
-train_step = trainOp(pretrain_mnist)
+# train_step = trainOp(pretrain_mnist)
 accuracy = evalOp(pretrain_mnist)
 
 def train():
@@ -221,15 +198,15 @@ with tf.Session(config=tf.ConfigProto(
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    loadModel(sess, model_name=None)
+    # loadModel(sess, model_name=None)
     # loadModel(sess, model_name='pretrain_mnist_att-549')
     # loadModel(sess, model_name='filter_depth-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    train()
-    accuracy.eval(feed_dict={eval_batch_size: 2000})
+    # train()
+    accuracy.eval(feed_dict={eval_batch_size: 1})
     # writeReEncoded()
     # runTimeEstimate(sess)
 
