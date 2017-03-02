@@ -21,7 +21,12 @@ def deepEncoder(image):
         net = slim.conv2d(net, 64, [3, 3], scope='conv_2')
         net = slim.max_pool2d(net, [2, 2], scope='pool_2')
 
-        net = addLayer(net, 128, '4')
+        net = slim.conv2d(net, 128, [3, 3], scope='conv_3')
+        net = slim.max_pool2d(net, [1, 2], scope='pool_3')
+
+        net = slim.conv2d(net, 128, [3, 3], scope='conv_4')
+        net = slim.max_pool2d(net, [2, 2], scope='pool_4')
+
         net = slim.conv2d(net, 256, [1, 5], padding='VALID', scope='conv_wide')
         net = slim.max_pool2d(net, [1, 2], scope='pool_wide')
         return net
