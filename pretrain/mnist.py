@@ -1,6 +1,6 @@
 
 import tensorflow as tf
-import tensorflow.contrib.learn.python.learn.datasets.mnist as mnist_data
+import tensorflow.examples.tutorials.mnist.input_data as mnist_data
 
 def mnistData(train_mode):
     mnist = mnist_data.read_data_sets('MNIST_data', one_hot=False)
