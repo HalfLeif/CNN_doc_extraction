@@ -22,7 +22,6 @@ def fragmentImage(image):
     image = tf.reshape(image, [28, 28])
     fragments = tf.split(image, 4, axis=0)
     fragments = tf.stack(fragments)
-    print('FRAGMENTS: ', fragments.get_shape())
     return fragments
 
 def noiseImage(digit_queue, n):
@@ -44,7 +43,6 @@ def mnistSample(train_mode):
     imgs, labels = mnistData(train_mode)
     shuffled = tf.train.slice_input_producer([imgs, labels], shuffle=True, seed=None)
     four_images, four_labels = tf.train.batch(shuffled, batch_size=4)
-    print('FOUR LABELS', four_labels.get_shape())
 
     wide_image = stackMnist(four_images, 4)
 
