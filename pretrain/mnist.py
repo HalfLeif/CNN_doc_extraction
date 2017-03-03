@@ -36,6 +36,30 @@ def noiseImage(digit_queue, n):
     # n_images = tf.Print(n_images, ['WRITE NOISE', debug.debugImage(n_images, years)])
     return n_images
 
+def padNoise(image, noise_width, queue):
+    noise = noiseImage(queue, noise_width)
+    left, right = tf.split(noise, 2, axis=1)
+
+    parts = [left, image, right]
+    parts = list(map(lambda p: tf.pad(p, [[6,6],[4,4],[0,0]]), parts))
+    wide_image = tf.concat(parts, axis=1)
+    return wide_image
+
+
+def padEmpty(image, noise_width):
+    sides = noise_width*14 + 4*3
+    return tf.pad(image, [[6,6],[sides, sides],[0,0]])
+
+
+def addDotNoise(image):
+    shape = image.get_shape()
+    dots = tf.random_uniform(shape, minval=0.7, maxval=1.0, dtype=tf.float32)
+
+    black_ink = 1 - image
+    black_ink = black_ink * dots
+    return 1 - black_ink
+
+
 def mnistSample(train_mode):
     ''' Returns two tensors: a four digit image and its label.
         MNIST images uses 1.0 for ink and 0.0 for background.
@@ -47,12 +71,9 @@ def mnistSample(train_mode):
     wide_image = stackMnist(four_images, 4)
 
     noise_width = 10
-    noise = noiseImage(shuffled, noise_width)
-    left, right = tf.split(noise, 2, axis=1)
-
-    parts = [left, wide_image, right]
-    parts = list(map(lambda p: tf.pad(p, [[6,6],[4,4],[0,0]]), parts))
-    wide_image = tf.concat(parts, axis=1)
+    # wide_image = padNoise(wide_image, noise_width, shuffled)
+    wide_image = padEmpty(wide_image, noise_width)
+    wide_image = addDotNoise(wide_image)
 
     four_labels = tf.cast(four_labels, tf.int32)
     year = tf.reduce_sum(four_labels * tf.constant([1000, 100, 10, 1], tf.int32))
