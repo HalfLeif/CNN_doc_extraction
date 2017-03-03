@@ -48,7 +48,7 @@ def padNoise(image, noise_width, queue):
 
 def padEmpty(image, noise_width):
     sides = noise_width*14 + 4*3
-    return tf.pad(image, [[6,6],[sides, sides],[0,0]])
+    return tf.pad(image, [[6,6],[sides, sides+100],[0,0]])
 
 
 def addDotNoise(image):

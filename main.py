@@ -142,7 +142,7 @@ def evalOp(pretrain=True):
     return accuracy
 
 pretrain_mnist = True
-train_step = trainOp(pretrain_mnist)
+# train_step = trainOp(pretrain_mnist)
 accuracy = evalOp(pretrain_mnist)
 
 def train():
@@ -213,7 +213,7 @@ with tf.Session(config=tf.ConfigProto(
     time_start = time.process_time()
 
     # train()
-    accuracy.eval(feed_dict={eval_batch_size: 500})
+    accuracy.eval(feed_dict={eval_batch_size: 250})
     # writeReEncoded()
     # runTimeEstimate(sess)
 
