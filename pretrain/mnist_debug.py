@@ -14,3 +14,7 @@ def debugImage(image, label):
     re_encoded = tf.image.encode_jpeg(restore)
     write_op = tf.py_func(py_WriteImage, [re_encoded, label], tf.int32, stateful=True)
     return write_op
+
+def debugFirstImage(batch_images, label):
+    image = tf.slice(batch_images, [0, 0, 0, 0], [1, -1, -1, -1])
+    return debugImage(image, label)

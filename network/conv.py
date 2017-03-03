@@ -8,7 +8,7 @@ def addLayer(net, depth, name):
     net = slim.max_pool2d(net, [2, 2], scope='pool_' + name)
     return net
 
-def deepEncoder(image):
+def thinEncoder(image):
     with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,
                         padding='SAME',
@@ -31,7 +31,7 @@ def deepEncoder(image):
         net = slim.max_pool2d(net, [1, 2], scope='pool_wide')
         return net
 
-def deepEncoderOLD(image):
+def deepEncoder(image):
     with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,
                         padding='SAME',
