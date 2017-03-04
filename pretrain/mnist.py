@@ -4,7 +4,6 @@ import tensorflow.examples.tutorials.mnist.input_data as mnist_data
 
 import pretrain.mnist_debug as debug
 
-# import copy
 
 def mnistData(train_mode):
     mnist = mnist_data.read_data_sets('MNIST_data', one_hot=False)
