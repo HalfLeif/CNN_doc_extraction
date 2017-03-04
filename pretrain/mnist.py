@@ -1,8 +1,10 @@
-
+import numpy as np
 import tensorflow as tf
 import tensorflow.examples.tutorials.mnist.input_data as mnist_data
 
 import pretrain.mnist_debug as debug
+
+# import copy
 
 def mnistData(train_mode):
     mnist = mnist_data.read_data_sets('MNIST_data', one_hot=False)
@@ -46,11 +48,6 @@ def padNoise(image, noise_width, queue):
     return wide_image
 
 
-def padEmpty(image, noise_width):
-    sides = noise_width*14 + 4*3
-    return tf.pad(image, [[6,6],[sides, sides+100],[0,0]])
-
-
 def padRandom(image):
     ''' Places the image at a random position in a rectangle
         with shape `crop_shape`.'''
@@ -66,12 +63,15 @@ def padRandom(image):
 
 def addDotNoise(image):
     shape = image.get_shape()
-    dots = tf.random_uniform(shape, minval=0.7, maxval=1.0, dtype=tf.float32)
+    dots = tf.random_uniform(shape, minval=0.6, maxval=1.0, dtype=tf.float32)
 
     black_ink = 1 - image
     black_ink = black_ink * dots
     return 1 - black_ink
 
+def ones(imgs, labels):
+    ''' Returns list of images whose label is 1.'''
+    return np.array([imgs[i] for i in range(len(labels)) if labels[i] == 1])
 
 def mnistSample(train_mode):
     ''' Returns two tensors: a four digit image and its label.
@@ -79,8 +79,14 @@ def mnistSample(train_mode):
     '''
     imgs, labels = mnistData(train_mode)
     shuffled = tf.train.slice_input_producer([imgs, labels], shuffle=True, seed=None)
-    four_images, four_labels = tf.train.batch(shuffled, batch_size=4)
+    three_images, three_labels = tf.train.batch(shuffled, batch_size=3)
 
+    one_imgs = ones(imgs, labels)
+    ones_queue = tf.train.input_producer(one_imgs, shuffle=True, seed=None)
+    one_img = ones_queue.dequeue()
+    one_img = tf.expand_dims(one_img, 0)
+
+    four_images = tf.concat([one_img, three_images], axis=0)
     wide_image = stackMnist(four_images, 4)
 
     noise_width = 10
@@ -89,10 +95,10 @@ def mnistSample(train_mode):
     wide_image = padRandom(wide_image)
     wide_image = addDotNoise(wide_image)
 
-    four_labels = tf.cast(four_labels, tf.int32)
-    year = tf.reduce_sum(four_labels * tf.constant([1000, 100, 10, 1], tf.int32))
+    three_labels = tf.cast(three_labels, tf.int32)
+    year = 1000 + tf.reduce_sum(three_labels * tf.constant([100, 10, 1], tf.int32))
 
-    year = tf.Print(year, ['WRITE IMG', debug.debugImage(wide_image, year)])
+    # year = tf.Print(year, ['WRITE IMG', debug.debugImage(wide_image, year)])
 
     return wide_image, year
 
