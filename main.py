@@ -213,7 +213,7 @@ with tf.Session(config=tf.ConfigProto(
     time_start = time.process_time()
 
     # train()
-    accuracy.eval(feed_dict={eval_batch_size: 250})
+    accuracy.eval(feed_dict={eval_batch_size: 1})
     # writeReEncoded()
     # runTimeEstimate(sess)
 

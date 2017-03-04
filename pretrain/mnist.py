@@ -51,6 +51,19 @@ def padEmpty(image, noise_width):
     return tf.pad(image, [[6,6],[sides, sides+100],[0,0]])
 
 
+def padRandom(image):
+    ''' Places the image at a random position in a rectangle
+        with shape `crop_shape`.'''
+
+    add_top = 28
+    add_side = 56
+    pad_all = tf.pad(image, [[add_top,add_top],[add_side,add_side],[0,0]])
+
+    shape = image.get_shape()
+    crop_shape = [int(shape[0])+add_top, int(shape[1])+add_side, int(shape[2])]
+    return tf.random_crop(pad_all, crop_shape)
+
+
 def addDotNoise(image):
     shape = image.get_shape()
     dots = tf.random_uniform(shape, minval=0.7, maxval=1.0, dtype=tf.float32)
@@ -72,13 +85,14 @@ def mnistSample(train_mode):
 
     noise_width = 10
     # wide_image = padNoise(wide_image, noise_width, shuffled)
-    wide_image = padEmpty(wide_image, noise_width)
+    # wide_image = padEmpty(wide_image, noise_width)
+    wide_image = padRandom(wide_image)
     wide_image = addDotNoise(wide_image)
 
     four_labels = tf.cast(four_labels, tf.int32)
     year = tf.reduce_sum(four_labels * tf.constant([1000, 100, 10, 1], tf.int32))
 
-    # year = tf.Print(year, ['WRITE IMG', debug.debugImage(wide_image, year)])
+    year = tf.Print(year, ['WRITE IMG', debug.debugImage(wide_image, year)])
 
     return wide_image, year
 
