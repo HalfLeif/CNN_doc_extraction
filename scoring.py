@@ -50,7 +50,7 @@ def error(year, year_prob):
 
     # If year < 1000, then one_hot makes a zero vector
     # and the entropy evaluates to 0.
-    year_label = tf.one_hot(tf.mod(year, 1000), 1000, name='year_label')
+    year_label = tf.one_hot(tf.mod(year, 1000), 1000)
     year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_prob,
                                                          labels=year_label)
 

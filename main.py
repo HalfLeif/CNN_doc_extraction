@@ -2,6 +2,7 @@
 import network.conv as conv
 import preprocess.load_iris as iris
 import preprocess.grayscale as gray
+import pretrain.mnist_debug as debug
 import pretrain.mnist as mnist
 import scoring as sc
 
@@ -52,29 +53,6 @@ def numParams():
 def printNumParams():
     print('# PARAMETERS: ', numParams())
 
-# Preload labels
-# all_jpgs, all_years = iris.loadTranscriptions(iris_train)
-# jpgs = tf.constant(all_jpgs, tf.string)
-# years = tf.constant(all_years, tf.int32)
-
-# Input pipeline
-# jpg_path, year = tf.train.slice_input_producer([jpgs, years], shuffle=True)
-# image = loadImage(jpg_path)
-# batch_images, batch_years = tf.train.batch([image, year], batch_size=MNIST_BATCH_SIZE)
-
-def py_WriteImage(re_encoded):
-    with open('data\\temp.jpg', 'wb+') as f:
-        f.write(re_encoded)
-    print('WROTE RE-ENCODED IMAGE')
-    return 0
-
-def debugImage(image):
-    image = tf.squeeze(image)
-    image = tf.expand_dims(image, -1)
-    restore = tf.cast(image*255, tf.uint8)
-    re_encoded = tf.image.encode_jpeg(restore)
-    write_op = tf.py_func(py_WriteImage, [re_encoded], tf.int32, stateful=True)
-    return write_op
 
 def runNetwork(batch_images, train_mode):
     if train_mode:
@@ -83,11 +61,16 @@ def runNetwork(batch_images, train_mode):
         keep_prob = 1.0
 
     # Network
+    print('Input: ', batch_images.get_shape())
     activation = conv.deepEncoder(batch_images)
     print('Batch embedding:', activation.get_shape())
 
     attention = conv.attend(activation, keep_prob)
     print('Attention: ', attention.get_shape())
+
+    # attention = tf.Print(attention, ['WRITE ATTENTION',
+    #                                  debug.debugFirstImage(batch_images, 'input'),
+    #                                  debug.debugFirstImage(attention, 'attention')])
 
     attended = tf.reduce_sum(activation * attention, [1, 2])
 
@@ -131,7 +114,7 @@ def trainOp(pretrain=True):
     return train_step
 
 def py_printCompare(expected, output, accuracy):
-    iterations = min(len(expected), 100)
+    iterations = min(len(expected), 50)
     for i in range(iterations):
         print(' ', expected[i], '->', output[i])
 
@@ -139,14 +122,14 @@ def py_printCompare(expected, output, accuracy):
     print('Accuracy:', accuracy)
     return len(expected)
 
-eval_batch_size = tf.placeholder_with_default(500, [], name='eval_batch_size')
+eval_batch_size = tf.placeholder_with_default(50, [], name='eval_batch_size')
 
 def evalOp(pretrain=True):
     tf.get_variable_scope().reuse_variables()
     if pretrain:
         batch_images, batch_years = mnist.mnistBatch(eval_batch_size, False)
     else:
-        batch_images, batch_years = irisQueue(iris_test, 1)
+        batch_images, batch_years = irisQueue(iris_test, 3)
     remapped = tf.mod(batch_years, 1000) + 1000
     year_prob = runNetwork(batch_images, False)
     pred = sc.predict(year_prob)
@@ -155,6 +138,7 @@ def evalOp(pretrain=True):
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy], tf.int64, stateful=True)
     accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
+
     return accuracy
 
 pretrain_mnist = True
@@ -167,7 +151,8 @@ def train():
     if pretrain_mnist:
         num_batches = int(55000/MNIST_BATCH_SIZE)
     else:
-        num_batches = int(10500/IRIS_BATCH_SIZE)
+        # num_batches = int(10500/IRIS_BATCH_SIZE)
+        num_batches = 10
 
     for i in range(num_batches):
         print('BATCH', i)
@@ -175,10 +160,11 @@ def train():
         train_step.run()
 
         if (i%100 == 99):
+            print('Saving ', model_name)
             save_name = os.path.join(model_dir, model_name)
             save_path = saver.save(sess, save_name, global_step=i)
 
-        if (i%100 == 99 or i == 0):
+        if (i%100 == 99):
             accuracy.eval()
 
 def loadModel(sess, model_name=None):
@@ -219,14 +205,17 @@ with tf.Session(config=tf.ConfigProto(
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    # loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='pretrain_mnist_att-549')
+
+    loadModel(sess, model_name=None)
+    # loadModel(sess, model_name='DE_d04_noise-1099')
+    # loadModel(sess, model_name='thin_encoder_pool_2-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    # accuracy.eval(feed_dict={eval_batch_size: 2000})
+
     train()
+    accuracy.eval(feed_dict={eval_batch_size: 250})
     # writeReEncoded()
     # runTimeEstimate(sess)
 
