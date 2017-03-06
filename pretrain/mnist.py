@@ -97,7 +97,7 @@ def mnistSample(train_mode):
     three_labels = tf.cast(three_labels, tf.int32)
     year = 1000 + tf.reduce_sum(three_labels * tf.constant([100, 10, 1], tf.int32))
 
-    year = tf.Print(year, ['WRITE IMG', debug.debugImage(wide_image, year)])
+    # year = tf.Print(year, ['WRITE IMG', debug.debugImage(wide_image, year)])
 
     return wide_image, year
 

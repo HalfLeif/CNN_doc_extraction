@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.client import timeline
 
-# import os
+import os
 import time
 
 # TODO: replace with FLAGS
@@ -206,15 +206,14 @@ with tf.Session(config=tf.ConfigProto(
     threads = tf.train.start_queue_runners(coord=coord)
 
 
-    loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='DE_d04_noise-1099')
-    # loadModel(sess, model_name='thin_encoder_pool_2-1099')
+    # loadModel(sess, model_name=None)
+    loadModel(sess, model_name='DE_pad_random_4-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
 
-    train()
+    # train()
     accuracy.eval(feed_dict={eval_batch_size: 250})
     # writeReEncoded()
     # runTimeEstimate(sess)
