@@ -38,9 +38,17 @@ def deepEncoder(image):
                         weights_initializer=tf.truncated_normal_initializer(0.0, 0.1),
                         weights_regularizer=slim.l2_regularizer(0.0005)):
         net = image
-        net = addLayer(net, 32, '0')
+        net = addLayer(net, 32, '1')
         net = addLayer(net, 64, '2')
-        net = addLayer(net, 128, '4')
+
+        # net = addLayer(net, 128, '4')
+        net = slim.conv2d(net, 128, [3, 3], scope='conv_3')
+        net = slim.max_pool2d(net, [1, 2], scope='pool_3')
+
+        net = slim.conv2d(net, 128, [3, 3], scope='conv_4')
+        net = slim.max_pool2d(net, [2, 2], scope='pool_4')
+
+
         net = slim.conv2d(net, 256, [1, 5], padding='VALID', scope='conv_wide')
         net = slim.max_pool2d(net, [1, 2], scope='pool_wide')
         return net
