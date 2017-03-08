@@ -114,7 +114,7 @@ def trainOp(pretrain=True):
     return train_step
 
 def py_printCompare(expected, output, accuracy):
-    iterations = min(len(expected), 50)
+    iterations = min(len(expected), 25)
     for i in range(iterations):
         print(' ', expected[i], '->', output[i])
 
@@ -155,7 +155,7 @@ def train():
         num_batches = 10
 
     for i in range(num_batches):
-        if (i%100 == 0)
+        if (i%100 == 0):
             print('BATCH', i)
 
         train_step.run()
@@ -212,15 +212,16 @@ with tf.Session(config=tf.ConfigProto(
     threads = tf.train.start_queue_runners(coord=coord)
 
     loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='DE_d04_noise-1099')
-    # loadModel(sess, model_name='DEM_pad_random_8-1099')
+    # loadModel(sess, model_name='DEM_pad_random_15-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    model_name = 'DEM_pad_random_15'
-    train()
-    accuracy.eval(feed_dict={eval_batch_size: 500})
+    evalsize = 1000
+    # model_name = 'DEM_pad_random_25'
+    # train()
+    accuracy.eval(feed_dict={eval_batch_size: evalsize})
+
     # writeReEncoded()
     # runTimeEstimate(sess)
 
