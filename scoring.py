@@ -27,6 +27,15 @@ def predict(year_prob):
     # return tf.cast(decision*year + (decision-1), tf.int32)
     return tf.cast(year, tf.int32)
 
+def certainty(year_prob, years):
+    ''' Returns probability of the correct label.
+        Note: does not return the highest probability.'''
+    indices = tf.mod(years, 1000)
+    hots = tf.one_hot(indices, 1000, dtype=tf.float32, axis=-1)
+
+    certainties = tf.reduce_sum(year_prob * hots, axis=1)
+    return certainties
+
 
 def error(year, year_prob):
     ''' Error function to minimize.
