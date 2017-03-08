@@ -70,9 +70,9 @@ def runNetwork(batch_images, train_mode):
     attention = conv.attend(activation, keep_prob)
     print('Attention: ', attention.get_shape())
 
-    # attention = tf.Print(attention, ['WRITE ATTENTION',
-    #                                  debug.debugFirstImage(batch_images, 'input'),
-    #                                  debug.debugFirstImage(attention, 'attention')])
+    attention = tf.Print(attention, ['WRITE ATTENTION',
+                                     debug.debugFirstImage(batch_images, 'input'),
+                                     debug.debugAttention(attention)])
 
     attended = tf.reduce_sum(activation * attention, [1, 2])
 
@@ -146,12 +146,12 @@ def evalOp(pretrain=True):
     correct_prediction = tf.equal(remapped, pred)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, certainties], tf.int32, stateful=True)
-    # accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
+    accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
 
     return accuracy
 
 pretrain_mnist = True
-train_step = trainOp(pretrain_mnist)
+# train_step = trainOp(pretrain_mnist)
 accuracy = evalOp(pretrain_mnist)
 
 def train():
@@ -245,9 +245,9 @@ with tf.Session(config=tf.ConfigProto(
     # evalsize = 100
     # model_name = 'DEM_pad_random_25'
     # train()
-    evaluate()
+    # evaluate()
 
-    # accuracy.eval(feed_dict={eval_batch_size: evalsize})
+    accuracy.eval(feed_dict={eval_batch_size: 1})
 
     # writeReEncoded()
     # runTimeEstimate(sess)
