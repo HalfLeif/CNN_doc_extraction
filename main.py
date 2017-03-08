@@ -63,6 +63,8 @@ def runNetwork(batch_images, train_mode):
     # Network
     print('Input: ', batch_images.get_shape())
     activation = conv.deepEncoder(batch_images)
+    # activation = conv.minWidthEncoder(batch_images)
+    # activation = conv.balancedWidthEncoder(batch_images)
     print('Batch embedding:', activation.get_shape())
 
     attention = conv.attend(activation, keep_prob)
@@ -144,7 +146,7 @@ def evalOp(pretrain=True):
     correct_prediction = tf.equal(remapped, pred)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, certainties], tf.int32, stateful=True)
-    accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
+    # accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
 
     return accuracy
 
@@ -208,6 +210,19 @@ def runTimeEstimate(sess):
         f.write(ctf)
     print('WROTE TIMELINE')
 
+def evaluate():
+    batch_size=10
+
+    accs = 0
+    for ai in range(100):
+        if ai%10 == 0 and ai > 0:
+            print('Tested ', ai*batch_size, 'acc: ', accs/ai)
+        acc = accuracy.eval(feed_dict={eval_batch_size: batch_size})
+        accs = accs + acc
+
+    ai = ai + 1
+    print('Tested ', ai*batch_size, 'acc: ', accs/ai)
+
 with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
     printNumParams()
@@ -227,10 +242,12 @@ with tf.Session(config=tf.ConfigProto(
     print('System ready!')
     time_start = time.process_time()
 
-    evalsize = 500
+    # evalsize = 100
     # model_name = 'DEM_pad_random_25'
     # train()
-    accuracy.eval(feed_dict={eval_batch_size: evalsize})
+    evaluate()
+
+    # accuracy.eval(feed_dict={eval_batch_size: evalsize})
 
     # writeReEncoded()
     # runTimeEstimate(sess)
