@@ -5,7 +5,7 @@ from tensorflow.contrib import slim
 def addLayer(net, depth, name):
     net = slim.conv2d(net, depth, [3, 3], padding='SAME', scope='conva_' + name)
     net = slim.conv2d(net, depth, [3, 3], padding='SAME', scope='convb_' + name)
-    net = slim.max_pool2d(net, [2, 2], scope='pool_' + name)
+    net = slim.max_pool2d(net, 2, scope='pool_' + name)
     return net
 
 def thinEncoder(image):
@@ -65,14 +65,14 @@ def minWidthEncoder(image):
 
         # net = addLayer(net, 128, '4')
         net = slim.conv2d(net, 32, [3, 3], scope='conv_3')
-        net = slim.max_pool2d(net, [1, 2], scope='pool_3')
+        net = slim.max_pool2d(net, 2, scope='pool_3')
 
         net = slim.conv2d(net, 128, [3, 3], scope='conv_4')
-        net = slim.max_pool2d(net, [2, 2], scope='pool_4')
+        net = slim.max_pool2d(net, 2, scope='pool_4')
 
 
         net = slim.conv2d(net, 256, [1, 5], padding='VALID', scope='conv_wide')
-        net = slim.max_pool2d(net, [1, 2], scope='pool_wide')
+        net = slim.max_pool2d(net, 2, scope='pool_wide')
         return net
 
 def deepEncoder(image):

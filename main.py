@@ -70,9 +70,9 @@ def runNetwork(batch_images, train_mode):
     attention = conv.attend(activation, keep_prob)
     print('Attention: ', attention.get_shape())
 
-    attention = tf.Print(attention, ['WRITE ATTENTION',
-                                     debug.debugFirstImage(batch_images, 'input'),
-                                     debug.debugAttention(attention)])
+    # attention = tf.Print(attention, ['WRITE ATTENTION',
+    #                                  debug.debugFirstImage(batch_images, 'input'),
+    #                                  debug.debugAttention(attention)])
 
     attended = tf.reduce_sum(activation * attention, [1, 2])
 
@@ -242,12 +242,12 @@ with tf.Session(config=tf.ConfigProto(
     print('System ready!')
     time_start = time.process_time()
 
-    # evalsize = 100
+    evalsize = 100
     # model_name = 'DEM_pad_random_25'
     # train()
-    # evaluate()
+    evaluate()
 
-    accuracy.eval(feed_dict={eval_batch_size: 1})
+    # accuracy.eval(feed_dict={eval_batch_size: 1})
 
     # writeReEncoded()
     # runTimeEstimate(sess)
