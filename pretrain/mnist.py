@@ -51,8 +51,15 @@ def padRandom(image):
     ''' Places the image at a random position in a rectangle
         with shape `crop_shape`.'''
 
-    add_top = 28
-    add_side = 56
+    # add_top = 28
+    # add_side = 56
+    # add_top = 54
+    # add_side = 100
+    add_top = 108
+    add_side = 200
+    # add_top = 216
+    # add_side = 400
+
     pad_all = tf.pad(image, [[add_top,add_top],[add_side,add_side],[0,0]])
 
     shape = image.get_shape()
