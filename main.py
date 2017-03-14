@@ -186,10 +186,10 @@ pretrain_mnist = False
 train_step = trainOp(pretrain_mnist)
 accuracy = evalOp(pretrain_mnist)
 
-def saveModel(saver):
+def saveModel(saver, step):
     print('Saving ', model_name)
     save_name = os.path.join(model_dir, model_name)
-    save_path = saver.save(sess, save_name, global_step=i, write_meta_graph=False)
+    save_path = saver.save(sess, save_name, global_step=step, write_meta_graph=False)
 
 def train():
     saver = tf.train.Saver(max_to_keep=3)
@@ -207,10 +207,10 @@ def train():
         train_step.run()
 
         if (i%100 == 99):
-            saveModel(saver)
+            saveModel(saver, i)
         if (i%100 == 99):
             accuracy.eval()
-    saveModel(saver)
+    saveModel(saver, i)
 
 
 
