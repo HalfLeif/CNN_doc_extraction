@@ -184,7 +184,12 @@ def evalOp(pretrain=True):
 
 pretrain_mnist = False
 train_step = trainOp(pretrain_mnist)
-# accuracy = evalOp(pretrain_mnist)
+accuracy = evalOp(pretrain_mnist)
+
+def saveModel(saver):
+    print('Saving ', model_name)
+    save_name = os.path.join(model_dir, model_name)
+    save_path = saver.save(sess, save_name, global_step=i, write_meta_graph=False)
 
 def train():
     saver = tf.train.Saver(max_to_keep=3)
@@ -193,7 +198,7 @@ def train():
         num_batches = int(55000/MNIST_BATCH_SIZE)
     else:
         # num_batches = int(10500/IRIS_BATCH_SIZE)
-        num_batches = 10
+        num_batches = int(14330/SWE_BATCH_SIZE)
 
     for i in range(num_batches):
         if (i%100 == 0):
@@ -201,17 +206,12 @@ def train():
 
         train_step.run()
 
-        # if (i%100 == 99):
-        #     print('Saving ', model_name)
-        #     save_name = os.path.join(model_dir, model_name)
-        #     save_path = saver.save(sess, save_name, global_step=i)
+        if (i%100 == 99):
+            saveModel(saver)
+        if (i%100 == 99):
+            accuracy.eval()
+    saveModel(saver)
 
-        # if (i%100 == 99):
-        #     accuracy.eval()
-
-    print('Saving ', model_name)
-    save_name = os.path.join(model_dir, model_name)
-    save_path = saver.save(sess, save_name, global_step=i)
 
 
 def loadModel(sess, model_name=None):
