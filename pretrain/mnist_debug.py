@@ -60,7 +60,7 @@ def py_printMatrix(matrix):
             # sys.stdout.write("{:6.4f}".format(elem*255))
             sys.stdout.write(' ')
         sys.stdout.write('\n')
-    return 0
+    return np.int32(0)
 
 def debugAttention(attention):
     first_attention = tf.slice(attention, [0, 0, 0, 0], [1, -1, -1, -1])

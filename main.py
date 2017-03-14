@@ -158,7 +158,7 @@ def py_printCompare(expected, output, accuracy, certainties):
     print('In total ' + str(len(expected)) + ' pairs evaluated...')
     print('Accuracy:', accuracy)
     print('Mean certainty:', sum(certainties)/len(certainties))
-    return len(expected)
+    return np.int32(len(expected))
 
 eval_batch_size = tf.placeholder_with_default(50, [], name='eval_batch_size')
 
@@ -274,7 +274,7 @@ with tf.Session(config=tf.ConfigProto(
     time_start = time.process_time()
 
     # evalsize = 100
-    # model_name = 'swe_debug'
+    model_name = 'Swe_DEM_1'
     train()
     # evaluate()
 
