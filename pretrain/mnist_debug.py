@@ -1,14 +1,18 @@
 import tensorflow as tf
 import numpy as np
 
+import os
 import sys
 
 def py_WriteImage(re_encoded, label):
-    filename ='data\\temp_imgs\\temp_'+str(label)+'.jpg'
+    tempdir = os.path.join('data', 'temp_imgs')
+    os.makedirs(tempdir, exist_ok=True)
+
+    filename = os.path.join(tempdir, 'temp_'+str(label)+'.jpg')
     with open(filename, 'wb+') as f:
         f.write(re_encoded)
     print('WROTE RE-ENCODED IMAGE to ', filename)
-    return 0
+    return np.int32(0)
 
 def debugImage(image, label):
     image = tf.squeeze(image)

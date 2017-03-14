@@ -5,11 +5,11 @@ import preprocess.image_transform as it
 
 def simpleRemap(image):
     ''' Takes image with pixel values in [0-255]. Remaps to floating point
-        so that ink is represented by 1.0 and background by 0.0.'''
+        so that ink is represented by 0.0 and background by 1.0.'''
     max_pixel = tf.reduce_max(image)
     min_pixel = tf.reduce_min(image)
 
-    result = (max_pixel - image) / (max_pixel - min_pixel)
+    result = (image - min_pixel) / (max_pixel - min_pixel)
     return result
 
 

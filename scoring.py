@@ -39,7 +39,7 @@ def certainty(year_prob, years):
 
 def error(year, year_prob):
     ''' Error function to minimize.
-        Label year is an integer in range [1000-1999] OR non-positive.
+        Label year is an integer in range [1000-1999].
         Supports batches.
     '''
     # has_number = tf.greater(year, 0)
@@ -56,10 +56,8 @@ def error(year, year_prob):
     # compare_years = [tf.nn.softmax_cross_entropy_with_logits(x, y)
     #                  for x, y in zip(year_prob, encoded_year)]
     # year_error = sum(compare_years)
-
-    # If year < 1000, then one_hot makes a zero vector
-    # and the entropy evaluates to 0.
-    year_label = tf.one_hot(tf.mod(year, 1000), 1000)
+    year = tf.mod(year, 1000)
+    year_label = tf.one_hot(year, 1000)
     year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_prob,
                                                          labels=year_label)
 
