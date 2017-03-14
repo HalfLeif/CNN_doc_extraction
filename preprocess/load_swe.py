@@ -3,8 +3,9 @@ import ast
 # import csv
 import os
 
-records_dir = "/Users/HalfLeif/sweden/records"
-labels_dir = "/Users/HalfLeif/labels"
+# TODO: replace with FLAGS
+records_dir = "/home/leif/sweden/records"
+labels_dir = "/home/leif/labels"
 
 NO_YEAR = -1
 
@@ -31,4 +32,4 @@ def loadCollection(collection_name):
     return image_files, years
 
 if __name__ == '__main__':
-    print(loadCollection("coll"))
+    print(loadCollection("1930273"))
