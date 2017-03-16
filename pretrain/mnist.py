@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import tensorflow.examples.tutorials.mnist.input_data as mnist_data
 
-import pretrain.mnist_debug as debug
+import img_debug as debug
 
 
 def mnistData(train_mode):

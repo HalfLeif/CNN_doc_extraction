@@ -1,4 +1,8 @@
 
+import loading.load_image as img
+
+import tensorflow as tf
+
 import ast
 import os
 
@@ -10,6 +14,33 @@ labels_dir = "/home/leif/labels"
 
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
+
+
+def sweBatch(batch_size, train_mode):
+    print('Load transcriptions')
+    if train_mode:
+        all_jpgs, all_years = loadTrainingSet()
+    else:
+        all_jpgs, all_years = loadTestSet()
+
+    jpgs = tf.constant(all_jpgs, tf.string)
+    years = tf.constant(all_years, tf.int32)
+
+    jpg_path, year = tf.train.slice_input_producer([jpgs, years], shuffle=True, capacity=25)
+    # jpg_path = tf.Print(jpg_path, ['Load swe image: ', jpg_path], summarize=100)
+    # TODO: ratio 4 or 8?
+    image = img.loadImage(jpg_path, ratio=8)
+
+    batch_images, batch_years = tf.train.batch([image, year], batch_size=batch_size, capacity=4, num_threads=2, dynamic_pad=True)
+
+    # Need to invert images after the dynamic padding.
+    batch_images = 1 - batch_images
+
+    # batch_images = tf.Print(batch_images, ['DEBUG', debug.debugFirstImage(batch_images, 'SWE')])
+
+    print('Swe queue created')
+    return batch_images, batch_years
+
 
 def loadTrainingSet():
     imgs = []
