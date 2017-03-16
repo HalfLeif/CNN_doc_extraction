@@ -68,8 +68,8 @@ def runNetwork(batch_images, train_mode):
 
     # Network
     print('Input: ', batch_images.get_shape())
-    # activation = conv.deepEncoder(batch_images)
-    activation = conv.minWidthEncoder(batch_images)
+    activation = conv.deepEncoder(batch_images)
+    # activation = conv.minWidthEncoder(batch_images)
     # activation = conv.balancedWidthEncoder(batch_images)
     print('Batch embedding:', activation.get_shape())
 
@@ -265,19 +265,19 @@ with tf.Session(config=tf.ConfigProto(
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='DEP_pad_random_4-1099')
+    # loadModel(sess, model_name=None)
+    loadModel(sess, model_name='DEP_pad_random_5-1099')
     # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    epoch = 5
-    while epoch < 16:
-        model_name = 'Swe_DEM_' + str(epoch)
+    epoch_start = 1
+    for i in range(5):
+        epoch = epoch_start + i
+        model_name = 'Swe_DEP_' + str(epoch)
         train()
-        epoch = epoch + 1
 
     evaluate()
 
