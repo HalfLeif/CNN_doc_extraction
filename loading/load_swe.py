@@ -23,6 +23,8 @@ def sweBatch(batch_size, train_mode):
     else:
         all_jpgs, all_years = loadTestSet()
 
+    num_batches = int(len(all_years)/batch_size)
+
     jpgs = tf.constant(all_jpgs, tf.string)
     years = tf.constant(all_years, tf.int32)
 
@@ -39,7 +41,7 @@ def sweBatch(batch_size, train_mode):
     # batch_images = tf.Print(batch_images, ['DEBUG', debug.debugFirstImage(batch_images, 'SWE')])
 
     print('Swe queue created')
-    return batch_images, batch_years
+    return batch_images, batch_years, num_batches
 
 
 def loadTrainingSet():

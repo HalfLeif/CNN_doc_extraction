@@ -14,7 +14,6 @@ import os
 import time
 
 # TODO: replace with FLAGS
-model_name = 'temp'
 model_dir = 'models'
 
 MNIST_BATCH_SIZE = 50
@@ -76,16 +75,19 @@ def runNetwork(batch_images, train_mode):
 def trainOp(pretrain=True):
     if pretrain:
         batch_images, batch_years = mnist.mnistBatch(MNIST_BATCH_SIZE, True)
+        num_batches = int(55000/MNIST_BATCH_SIZE)
     else:
         # batch_images, batch_years = iris.irisQueue(iris_train, IRIS_BATCH_SIZE)
-        batch_images, batch_years = swe.sweBatch(SWE_BATCH_SIZE, True)
+        batch_images, batch_years, num_batches = swe.sweBatch(SWE_BATCH_SIZE, True)
+        print('Each epoch runs for', num_batches, 'batches, each with', SWE_BATCH_SIZE, 'images.')
 
     remapped = tf.mod(batch_years, 1000) + 1000
     year_prob = runNetwork(batch_images, True)
 
     error = sc.error(remapped, year_prob)
     train_step = tf.train.AdamOptimizer(1e-4).minimize(error)
-    return train_step
+
+    return train_step, num_batches
 
 def py_printCompare(expected, output, accuracy, certainties):
     iterations = min(len(expected), 25)
@@ -103,13 +105,13 @@ def py_printCompare(expected, output, accuracy, certainties):
 
 eval_batch_size = tf.placeholder_with_default(50, [], name='eval_batch_size')
 
-def evalOp(pretrain=True):
+def testOp(pretrain=True):
     tf.get_variable_scope().reuse_variables()
     if pretrain:
         batch_images, batch_years = mnist.mnistBatch(eval_batch_size, False)
     else:
         # batch_images, batch_years = iris.irisQueue(iris_test, 3)
-        batch_images, batch_years = swe.sweBatch(SWE_BATCH_SIZE, False)
+        batch_images, batch_years, _ = swe.sweBatch(SWE_BATCH_SIZE, False)
     year_prob = runNetwork(batch_images, False)
     year_prob = tf.nn.softmax(year_prob)
     pred = sc.predict(year_prob)
@@ -124,22 +126,16 @@ def evalOp(pretrain=True):
     return accuracy
 
 pretrain_mnist = False
-train_step = trainOp(pretrain_mnist)
-accuracy = evalOp(pretrain_mnist)
+train_step, num_batches = trainOp(pretrain_mnist)
+accuracy = testOp(pretrain_mnist)
 
-def saveModel(saver, step):
+def saveModel(saver, model_name, step):
     print('Saving ', model_name)
     save_name = os.path.join(model_dir, model_name)
     save_path = saver.save(sess, save_name, global_step=step, write_meta_graph=False)
 
-def train():
+def train(model_name):
     saver = tf.train.Saver(max_to_keep=3)
-
-    if pretrain_mnist:
-        num_batches = int(55000/MNIST_BATCH_SIZE)
-    else:
-        # num_batches = int(10500/IRIS_BATCH_SIZE)
-        num_batches = int(14330/SWE_BATCH_SIZE)
 
     for i in range(num_batches):
         if (i%100 == 0):
@@ -151,7 +147,7 @@ def train():
             saveModel(saver, i)
         if (i%100 == 99):
             accuracy.eval()
-    saveModel(saver, i)
+    saveModel(saver, model_name, i)
 
 
 
@@ -218,7 +214,7 @@ with tf.Session(config=tf.ConfigProto(
     for i in range(5):
         epoch = epoch_start + i
         model_name = 'Swe_DEP_' + str(epoch)
-        train()
+        train(model_name)
 
     evaluate()
 
