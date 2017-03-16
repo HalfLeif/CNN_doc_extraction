@@ -26,7 +26,7 @@ model_dir = 'models'
 # FIX_SHAPE = [900, 1500]
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
-SWE_BATCH_SIZE = 1
+SWE_BATCH_SIZE = 5
 NUM_THREADS = 3
 
 
@@ -65,8 +65,8 @@ def runNetwork(batch_images, train_mode):
 
     # Network
     print('Input: ', batch_images.get_shape())
-    # activation = conv.deepEncoder(batch_images)
-    activation = conv.minWidthEncoder(batch_images)
+    activation = conv.deepEncoder(batch_images)
+    # activation = conv.minWidthEncoder(batch_images)
     # activation = conv.balancedWidthEncoder(batch_images)
     print('Batch embedding:', activation.get_shape())
 
@@ -244,7 +244,7 @@ def runTimeEstimate(sess):
     print('WROTE TIMELINE')
 
 def evaluate():
-    batch_size=10
+    batch_size=SWE_BATCH_SIZE
 
     accs = 0
     for ai in range(100):
@@ -267,17 +267,20 @@ with tf.Session(config=tf.ConfigProto(
     threads = tf.train.start_queue_runners(coord=coord)
 
     # loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='DEP_pad_random_4-1099')
-    loadModel(sess, model_name='DEM_pad_random_25-1099')
+    loadModel(sess, model_name='DEP_pad_random_5-1099')
+    # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    # evalsize = 100
-    model_name = 'Swe_DEM_1'
-    train()
-    # evaluate()
+    epoch_start = 1
+    for i in range(5):
+        epoch = epoch_start + i
+        model_name = 'Swe_DEP_' + str(epoch)
+        train()
+
+    evaluate()
 
     # accuracy.eval(feed_dict={eval_batch_size: 1})
 
