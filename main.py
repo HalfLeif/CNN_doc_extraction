@@ -29,7 +29,7 @@ swe_test = '1949331'
 # FIX_SHAPE = [900, 1500]
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
-SWE_BATCH_SIZE = 1
+SWE_BATCH_SIZE = 5
 NUM_THREADS = 3
 
 
@@ -243,7 +243,7 @@ def runTimeEstimate(sess):
     print('WROTE TIMELINE')
 
 def evaluate():
-    batch_size=10
+    batch_size=SWE_BATCH_SIZE
 
     accs = 0
     for ai in range(100):
@@ -265,18 +265,21 @@ with tf.Session(config=tf.ConfigProto(
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    # loadModel(sess, model_name=None)
+    loadModel(sess, model_name=None)
     # loadModel(sess, model_name='DEP_pad_random_4-1099')
-    loadModel(sess, model_name='DEM_pad_random_25-1099')
+    # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    # evalsize = 100
-    model_name = 'Swe_DEM_1'
-    train()
-    # evaluate()
+    epoch = 5
+    while epoch < 16:
+        model_name = 'Swe_DEM_' + str(epoch)
+        train()
+        epoch = epoch + 1
+
+    evaluate()
 
     # accuracy.eval(feed_dict={eval_batch_size: 1})
 
