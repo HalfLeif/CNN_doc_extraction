@@ -1,7 +1,7 @@
 
+import loading.load_iris as iris
+import loading.load_swe as swe
 import network.conv as conv
-import preprocess.load_iris as iris
-import preprocess.load_swe as swe
 import preprocess.grayscale as gray
 import pretrain.mnist_debug as debug
 import pretrain.mnist as mnist
