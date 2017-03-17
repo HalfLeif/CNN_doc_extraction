@@ -110,4 +110,7 @@ def loadCollection(collection_name, train=True):
     return image_files, years
 
 if __name__ == '__main__':
-    print(loadTestSet())
+    imgs, years = loadTrainingSet()
+    print('MIN', min(years))
+    print('MAX', max(years))
+    print('#Labels', len(years))
