@@ -202,18 +202,18 @@ with tf.Session(config=tf.ConfigProto(
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='DEP_pad_random_5-1099')
+    # loadModel(sess, model_name=None)
+    loadModel(sess, model_name='Swe_DEP_7-199')
     # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    epoch_start = 6
-    for i in range(10):
+    epoch_start = 1
+    for i in range(100):
         epoch = epoch_start + i
-        model_name = 'Swe_DEP_' + str(epoch)
+        model_name = 'SDEP_continue_' + str(epoch)
         train(model_name)
 
     evaluate()
