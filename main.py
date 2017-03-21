@@ -18,7 +18,7 @@ model_dir = os.path.join('D:', 'data', 'models')
 
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
-SWE_BATCH_SIZE = 10
+SWE_BATCH_SIZE = 1
 NUM_THREADS = 4
 
 
@@ -55,9 +55,9 @@ def runNetwork(batch_images, train_mode):
     attention = conv.attend(activation, keep_prob)
     print('Attention: ', attention.get_shape())
 
-    # attention = tf.Print(attention, ['WRITE ATTENTION',
-    #                                  debug.debugFirstImage(batch_images, 'input'),
-    #                                  debug.debugAttention(attention)])
+    attention = tf.Print(attention, ['WRITE ATTENTION',
+                                     debug.debugFirstImage(batch_images, 'input'),
+                                     debug.debugAttention(attention)])
 
     attended = tf.reduce_sum(activation * attention, [1, 2])
 
@@ -122,6 +122,7 @@ def testOp(pretrain=True):
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, certainties], tf.int32, stateful=True)
     accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
+    # accuracy = tf.Print(accuracy, ['Output', year_prob], summarize=1000)
 
     return accuracy
 
@@ -210,15 +211,15 @@ with tf.Session(config=tf.ConfigProto(
     print('System ready!')
     time_start = time.process_time()
 
-    epoch_start = 1
-    for i in range(100):
-        epoch = epoch_start + i
-        model_name = 'SDEP_continue_' + str(epoch)
-        train(model_name)
+    # epoch_start = 1
+    # for i in range(100):
+    #     epoch = epoch_start + i
+    #     model_name = 'SDEP_continue_' + str(epoch)
+    #     train(model_name)
+    #
+    # evaluate()
 
-    evaluate()
-
-    # accuracy.eval(feed_dict={eval_batch_size: 1})
+    accuracy.eval(feed_dict={eval_batch_size: 1})
 
     # writeReEncoded()
     # runTimeEstimate(sess)

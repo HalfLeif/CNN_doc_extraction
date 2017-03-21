@@ -64,8 +64,10 @@ def py_printMatrix(matrix):
 
 def debugAttention(attention):
     first_attention = tf.slice(attention, [0, 0, 0, 0], [1, -1, -1, -1])
+    # first_attention = tf.Print(first_attention, ['ATTENTION: ', first_attention], summarize=1000)
     first_attention = tf.squeeze(first_attention)
     rebuild_attention = tf.py_func(py_rebuildBottomAttention, [first_attention], tf.float32, stateful=False)
+    rebuild_attention = tf.Print(rebuild_attention, ['MAX attention:', tf.reduce_max(rebuild_attention)])
     # print_op = tf.py_func(py_printMatrix, [first_attention], tf.int32, stateful=True)
     # print_op = tf.Print(print_op, [debugImage(first_attention, 'attention')])
     return debugImage(rebuild_attention, 'rebuilt')
