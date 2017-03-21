@@ -18,7 +18,7 @@ model_dir = 'models'
 
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
-SWE_BATCH_SIZE = 5
+SWE_BATCH_SIZE = 10
 NUM_THREADS = 3
 
 
@@ -144,7 +144,7 @@ def train(model_name):
         train_step.run()
 
         if (i%100 == 99):
-            saveModel(saver, i)
+            saveModel(saver, model_name, i)
         if (i%100 == 99):
             accuracy.eval()
     saveModel(saver, model_name, i)
@@ -183,7 +183,7 @@ def evaluate():
     batch_size=SWE_BATCH_SIZE
 
     accs = 0
-    for ai in range(100):
+    for ai in range(50):
         if ai%10 == 0 and ai > 0:
             print('Tested ', ai*batch_size, 'acc: ', accs/ai)
         acc = accuracy.eval(feed_dict={eval_batch_size: batch_size})
@@ -202,16 +202,16 @@ with tf.Session(config=tf.ConfigProto(
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    # loadModel(sess, model_name=None)
-    loadModel(sess, model_name='DEP_pad_random_5-1099')
+    loadModel(sess, model_name=None)
+    # loadModel(sess, model_name='DEP_pad_random_5-1099')
     # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    epoch_start = 1
-    for i in range(5):
+    epoch_start = 6
+    for i in range(10):
         epoch = epoch_start + i
         model_name = 'Swe_DEP_' + str(epoch)
         train(model_name)
