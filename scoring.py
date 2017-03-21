@@ -36,6 +36,13 @@ def certainty(year_prob, years):
     certainties = tf.reduce_sum(year_prob * hots, axis=1)
     return certainties
 
+def clusterError(year_prob):
+    ''' Returns cost for having multiple clusters.
+        Takes into account distances between years.'''
+    largest_cluster = tf.argmax(year_prob, axis=-1)
+    indices = tf.range(1000, dtype=tf.float32)
+    weights = tf.square(indices - tf.cast(largest_cluster, dtype=tf.float32))
+    return weights * year_prob
 
 def error(year, year_prob):
     ''' Error function to minimize.
@@ -61,7 +68,7 @@ def error(year, year_prob):
     year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_prob,
                                                          labels=year_label)
 
-    return year_error
+    return year_error + clusterError(year_prob)
 
     # total_err = tf.reduce_mean(decision_error + year_error)
     # return total_err

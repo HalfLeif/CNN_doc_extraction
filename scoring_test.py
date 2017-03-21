@@ -34,41 +34,54 @@ class ScoringTest(tf.test.TestCase):
     #         self.assertAllEqual(year.eval(), [-1])
 
 
-    def testError_hasNumber(self):
+    def clusterErrorTest(self):
         with self.test_session():
-            decision = tf.constant([0, 1], tf.float32)
-            prediction = sc.encodeYear(1881)
-            perfect = sc.error(1881, decision, prediction).eval()
-            wrong_class = sc.error(1882, decision, prediction).eval()
+            single = tf.clusterError(tf.constant([0, 0, 1, 0], tf.float32)).eval()
+            cluster = tf.clusterError(tf.constant([0, 0, 0.5, 0.5], tf.float32)).eval()
+            double = tf.clusterError(tf.constant([0.5, 0, 0.5, 0], tf.float32)).eval()
 
-            decision = tf.constant([0.5, 0.5], tf.float32)
-            empty_or_correct = sc.error(1881, decision, prediction).eval()
-            empty_or_wrong = sc.error(1882, decision, prediction).eval()
+            noisy_single = tf.clusterError(tf.constant([0.1, 0.1, 0.7, 0.1], tf.float32)).eval()
 
-            self.assertLess(perfect, empty_or_correct)
-            self.assertLess(empty_or_correct, wrong_class)
-            self.assertLess(wrong_class, empty_or_wrong)
+            self.assertLess(single, noisy_single)
+            self.assertLess(single, cluster)
+            self.assertLess(cluster, double)
+            self.assertLess(noisy_single, double)
 
-            decision = tf.constant([1, 0], tf.float32)
-            prediction = sc.encodeYear(1881)
-            false_negative = sc.error(1881, decision, prediction).eval()
-
-            self.assertLess(empty_or_correct, false_negative)
-
-    def testError_emptyYear(self):
-        with self.test_session():
-            decision = tf.constant([1, 0], tf.float32)
-            prediction = sc.encodeYear(881)
-            true_negative = sc.error(-1, decision, prediction).eval()
-
-            decision = tf.constant([0.5, 0.5], tf.float32)
-            uncertain = sc.error(-1, decision, prediction).eval()
-
-            decision = tf.constant([0, 1], tf.float32)
-            false_positive = sc.error(-1, decision, prediction).eval()
-
-            self.assertLess(true_negative, uncertain)
-            self.assertLess(uncertain, false_positive)
+    # def testError_hasNumber(self):
+    #     with self.test_session():
+    #         decision = tf.constant([0, 1], tf.float32)
+    #         prediction = sc.encodeYear(1881)
+    #         perfect = sc.error(1881, decision, prediction).eval()
+    #         wrong_class = sc.error(1882, decision, prediction).eval()
+    #
+    #         decision = tf.constant([0.5, 0.5], tf.float32)
+    #         empty_or_correct = sc.error(1881, decision, prediction).eval()
+    #         empty_or_wrong = sc.error(1882, decision, prediction).eval()
+    #
+    #         self.assertLess(perfect, empty_or_correct)
+    #         self.assertLess(empty_or_correct, wrong_class)
+    #         self.assertLess(wrong_class, empty_or_wrong)
+    #
+    #         decision = tf.constant([1, 0], tf.float32)
+    #         prediction = sc.encodeYear(1881)
+    #         false_negative = sc.error(1881, decision, prediction).eval()
+    #
+    #         self.assertLess(empty_or_correct, false_negative)
+    #
+    # def testError_emptyYear(self):
+    #     with self.test_session():
+    #         decision = tf.constant([1, 0], tf.float32)
+    #         prediction = sc.encodeYear(881)
+    #         true_negative = sc.error(-1, decision, prediction).eval()
+    #
+    #         decision = tf.constant([0.5, 0.5], tf.float32)
+    #         uncertain = sc.error(-1, decision, prediction).eval()
+    #
+    #         decision = tf.constant([0, 1], tf.float32)
+    #         false_positive = sc.error(-1, decision, prediction).eval()
+    #
+    #         self.assertLess(true_negative, uncertain)
+    #         self.assertLess(uncertain, false_positive)
 
 
 if __name__ == '__main__':
