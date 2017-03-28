@@ -34,18 +34,24 @@ class ScoringTest(tf.test.TestCase):
     #         self.assertAllEqual(year.eval(), [-1])
 
 
-    def clusterErrorTest(self):
+    def testClusterError(self):
         with self.test_session():
-            single = tf.clusterError(tf.constant([0, 0, 1, 0], tf.float32)).eval()
-            cluster = tf.clusterError(tf.constant([0, 0, 0.5, 0.5], tf.float32)).eval()
-            double = tf.clusterError(tf.constant([0.5, 0, 0.5, 0], tf.float32)).eval()
+            single = sc.clusterError(tf.constant([[0, 0, 1, 0]], tf.float32)).eval()
+            cluster = sc.clusterError(tf.constant([[0, 0, 0.5, 0.5]], tf.float32)).eval()
+            double = sc.clusterError(tf.constant([[0.5, 0, 0.5, 0]], tf.float32)).eval()
+            max_error = sc.clusterError(tf.constant([[0.5, 0, 0, 0, 0, 0, 0, 0.5]], tf.float32)).eval()
 
-            noisy_single = tf.clusterError(tf.constant([0.1, 0.1, 0.7, 0.1], tf.float32)).eval()
+            noisy_single = sc.clusterError(tf.constant([[0.1, 0.1, 0.7, 0.1]], tf.float32)).eval()
 
             self.assertLess(single, noisy_single)
             self.assertLess(single, cluster)
             self.assertLess(cluster, double)
+            self.assertLess(double, max_error)
             self.assertLess(noisy_single, double)
+
+            xs = sc.clusterError(tf.constant([[0, 0, 1, 0], [0, 1, 0, 0], [0, 0.5, 0.5, 0]], tf.float32)).eval()
+            self.assertAllEqual(xs[0], xs[1])
+            self.assertLess(xs[0], xs[2])
 
     # def testError_hasNumber(self):
     #     with self.test_session():

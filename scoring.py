@@ -38,11 +38,19 @@ def certainty(year_prob, years):
 
 def clusterError(year_prob):
     ''' Returns cost for having multiple clusters.
-        Takes into account distances between years.'''
-    largest_cluster = tf.argmax(year_prob, axis=-1)
-    indices = tf.range(1000, dtype=tf.float32)
-    weights = tf.square(indices - tf.cast(largest_cluster, dtype=tf.float32))
-    return weights * year_prob
+        Takes into account distances between years.
+        Expects input in batch mode.
+        The error value will always be in the range [0, 1).'''
+    largest_cluster = tf.argmax(year_prob, axis=1)
+    largest_cluster = tf.cast(largest_cluster, dtype=tf.float32)
+
+    [batch_size, y_range] = year_prob.get_shape()
+    y_range = tf.cast(y_range, tf.float32)
+
+    indices = tf.range(y_range, dtype=tf.float32)
+    diff = tf.map_fn(lambda pos: indices - pos, largest_cluster)
+    weights = tf.square(diff/y_range)
+    return 2 * tf.reduce_sum(weights * year_prob, axis=-1)
 
 def error(year, year_prob):
     ''' Error function to minimize.
