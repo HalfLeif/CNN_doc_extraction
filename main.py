@@ -2,7 +2,9 @@
 import img_debug as debug
 import loading.load_iris as iris
 import loading.load_swe as swe
-import network.conv as conv
+import network.attend as att
+import network.decoder as dec
+import network.encoder as enc
 import pretrain.mnist as mnist
 import scoring as sc
 
@@ -47,12 +49,10 @@ def runNetwork(batch_images, train_mode):
 
     # Network
     print('Input: ', batch_images.get_shape())
-    activation = conv.deepEncoder(batch_images)
-    # activation = conv.minWidthEncoder(batch_images)
-    # activation = conv.balancedWidthEncoder(batch_images)
+    activation = enc.deepEncoder(batch_images)
     print('Batch embedding:', activation.get_shape())
 
-    attention = conv.attend(activation, keep_prob)
+    attention = att.attend(activation, keep_prob)
     print('Attention: ', attention.get_shape())
 
     # attention = tf.Print(attention, ['WRITE ATTENTION',
@@ -68,7 +68,7 @@ def runNetwork(batch_images, train_mode):
     # attended = tf.Print(attended, [debugImage(first_image)])
 
     print('Attend: ', attended.get_shape())
-    year_prob = conv.decodeNumber(attended, keep_prob)
+    year_prob = dec.decodeNumber(attended, keep_prob)
     return year_prob
 
 
