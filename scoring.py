@@ -52,7 +52,7 @@ def clusterError(year_prob):
     weights = tf.square(diff/y_range)
     return 2 * tf.reduce_sum(weights * year_prob, axis=-1)
 
-def error(year, year_prob):
+def error(year, year_log):
     ''' Error function to minimize.
         Label year is an integer in range [1000-1999].
         Supports batches.
@@ -69,13 +69,14 @@ def error(year, year_prob):
     # Experiment with independent digit learning instead of combined...
     # encoded_year = encodeYear(year)
     # compare_years = [tf.nn.softmax_cross_entropy_with_logits(x, y)
-    #                  for x, y in zip(year_prob, encoded_year)]
+    #                  for x, y in zip(year_log, encoded_year)]
     # year_error = sum(compare_years)
     year = tf.mod(year, 1000)
     year_label = tf.one_hot(year, 1000)
-    year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_prob,
+    year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_log,
                                                          labels=year_label)
 
+    year_prob = tf.nn.softmax(year_log)
     return year_error + clusterError(year_prob)
 
     # total_err = tf.reduce_mean(decision_error + year_error)

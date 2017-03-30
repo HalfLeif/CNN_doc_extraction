@@ -68,8 +68,8 @@ def runNetwork(batch_images, train_mode):
     # attended = tf.Print(attended, [debugImage(first_image)])
 
     print('Attend: ', attended.get_shape())
-    year_prob = dec.decodeNumber(attended, keep_prob)
-    return year_prob
+    year_log = dec.decodeNumber(attended, keep_prob)
+    return year_log
 
 
 def trainOp(pretrain=True):
@@ -82,9 +82,9 @@ def trainOp(pretrain=True):
         print('Each epoch runs for', num_batches, 'batches, each with', SWE_BATCH_SIZE, 'images.')
 
     remapped = tf.mod(batch_years, 1000) + 1000
-    year_prob = runNetwork(batch_images, True)
+    year_log = runNetwork(batch_images, True)
 
-    error = sc.error(remapped, year_prob)
+    error = sc.error(remapped, year_log)
     train_step = tf.train.AdamOptimizer(1e-4).minimize(error)
 
     return train_step, num_batches
@@ -112,8 +112,8 @@ def testOp(pretrain=True):
     else:
         # batch_images, batch_years = iris.irisQueue(iris_test, 3)
         batch_images, batch_years, _ = swe.sweBatch(SWE_BATCH_SIZE, False)
-    year_prob = runNetwork(batch_images, False)
-    year_prob = tf.nn.softmax(year_prob)
+    year_log = runNetwork(batch_images, False)
+    year_prob = tf.nn.softmax(year_log)
     pred = sc.predict(year_prob)
     certainties = sc.certainty(year_prob, batch_years)
 
