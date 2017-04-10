@@ -20,7 +20,7 @@ model_dir = os.path.join('D:', 'data', 'models')
 
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
-SWE_BATCH_SIZE = 10
+SWE_BATCH_SIZE = 1
 NUM_THREADS = 4
 
 
@@ -55,9 +55,9 @@ def runNetwork(batch_images, train_mode):
     attention = att.attend(activation, keep_prob)
     print('Attention: ', attention.get_shape())
 
-    # attention = tf.Print(attention, ['WRITE ATTENTION',
-    #                                  debug.debugFirstImage(batch_images, 'input'),
-    #                                  debug.debugAttention(attention)])
+    attention = tf.Print(attention, ['WRITE ATTENTION',
+                                     debug.debugFirstImage(batch_images, 'input'),
+                                     debug.debugAttention(attention)])
 
     attended = tf.reduce_sum(activation * attention, [1, 2])
 
@@ -104,6 +104,11 @@ def py_printCompare(expected, output, accuracy, certainties):
     # print('Mean certainty:', sum(certainties)/len(certainties))
     return np.int32(len(expected))
 
+def py_printProbabilities(year_prob):
+    for i in range(10):
+        print(i, year_prob[0][0][i], year_prob[1][0][i], year_prob[2][0][i])
+    return np.int32(1)
+
 eval_batch_size = tf.placeholder_with_default(50, [], name='eval_batch_size')
 
 def testOp(pretrain=True):
@@ -122,11 +127,13 @@ def testOp(pretrain=True):
     correct_prediction = tf.equal(remapped, pred)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, 1], tf.int32, stateful=True)
-    accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
+    debug_prob = tf.py_func(py_printProbabilities, [year_log], tf.int32, stateful=True)
+    accuracy = tf.Print(accuracy, ['Debug', debug_prob])
+    accuracy = tf.Print(accuracy, ['Debug', debug_pred])
 
     return accuracy
 
-pretrain_mnist = True
+pretrain_mnist = False
 train_step, num_batches = trainOp(pretrain_mnist)
 accuracy = testOp(pretrain_mnist)
 
@@ -204,22 +211,22 @@ with tf.Session(config=tf.ConfigProto(
     threads = tf.train.start_queue_runners(coord=coord)
 
     # loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='Swe_DEP_7-199')
+    loadModel(sess, model_name='SweDEP_10-499')
     # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
 
     print('System ready!')
     time_start = time.process_time()
 
-    epoch_start = 1
-    for i in range(10):
-        epoch = epoch_start + i
-        model_name = 'Single_digit_PRE_' + str(epoch)
-        train(model_name)
+    # epoch_start = 1
+    # for i in range(10):
+    #     epoch = epoch_start + i
+    #     model_name = 'Single_digit_PRE_' + str(epoch)
+    #     train(model_name)
+    #
+    # evaluate()
 
-    evaluate()
-
-    # accuracy.eval(feed_dict={eval_batch_size: 1})
+    accuracy.eval(feed_dict={eval_batch_size: 1})
 
     # writeReEncoded()
     # runTimeEstimate(sess)
