@@ -30,6 +30,7 @@ def predict(year_prob):
 def certainty(year_prob, years):
     ''' Returns probability of the correct label.
         Note: does not return the highest probability.'''
+    years = tf.squeeze(years)
     indices = tf.mod(years, 1000)
     hots = tf.one_hot(indices, 1000, dtype=tf.float32, axis=-1)
 
@@ -61,7 +62,7 @@ def clusterError(year_prob):
     weights = tf.square(diff/y_range)
     return 2 * tf.reduce_sum(weights * year_prob, axis=-1)
 
-def error(year, year_log):
+def error(year_pair, year_log):
     ''' Error function to minimize.
         Label year is an integer in range [1000-1999].
         Supports batches.
@@ -80,6 +81,12 @@ def error(year, year_log):
     # compare_years = [tf.nn.softmax_cross_entropy_with_logits(x, y)
     #                  for x, y in zip(year_log, encoded_year)]
     # year_error = sum(compare_years)
+
+    min_year = tf.slice(year_pair, [0,0], [-1,1])
+    len_year = tf.slice(year_pair, [0,1], [-1,1])
+    print('YEAR SHAPE', min_year.get_shape(), len_year.get_shape())
+    year = min_year + tf.floordiv(len_year, 2)
+
     year = tf.mod(year, 1000)
     year_label = tf.one_hot(year, 1000)
     year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_log,

@@ -7,10 +7,10 @@ import ast
 import os
 
 # TODO: replace with FLAGS
-records_dir = "/home/leif/sweden/records"
-labels_dir = "/home/leif/labels"
-# labels_dir = "/Users/HalfLeif/labels"
-# records_dir = "/Users/HalfLeif/sweden/records"
+# records_dir = "/home/leif/sweden/records"
+# labels_dir = "/home/leif/labels"
+labels_dir = "/Users/HalfLeif/labels"
+records_dir = "/Users/HalfLeif/sweden/records"
 
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
@@ -101,7 +101,8 @@ def loadCollection(collection_name, train=True):
             image_path = os.path.join(records_dir, collection_name, 'Images', image_name + '.jpg')
             if os.path.exists(image_path):
                 image_files.append(image_path)
-                years.append(max(year_list))
+                pair = (min(year_list), len(year_list))
+                years.append(pair)
             else:
                 missing_files += 1
                 missing_example = image_name
