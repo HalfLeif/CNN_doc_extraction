@@ -135,7 +135,7 @@ def testOp(pretrain=True):
 
     return accuracy
 
-pretrain_mnist = False
+pretrain_mnist = True
 train_step, num_batches = trainOp(pretrain_mnist)
 accuracy = testOp(pretrain_mnist)
 
