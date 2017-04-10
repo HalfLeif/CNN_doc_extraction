@@ -20,7 +20,7 @@ model_dir = 'models'
 
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
-SWE_BATCH_SIZE = 2
+SWE_BATCH_SIZE = 10
 NUM_THREADS = 3
 
 
@@ -135,7 +135,7 @@ def testOp(pretrain=True):
 
     return accuracy
 
-pretrain_mnist = True
+pretrain_mnist = False
 train_step, num_batches = trainOp(pretrain_mnist)
 accuracy = testOp(pretrain_mnist)
 
@@ -206,14 +206,14 @@ with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
     printNumParams()
     print('INIT VARIABLES!')
-    sess.run(tf.global_variables_initializer())
+    # sess.run(tf.global_variables_initializer())
 
     print('Start threads...')
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
     # loadModel(sess, model_name=None)
-    # loadModel(sess, model_name='Swe_DEP_7-199')
+    loadModel(sess, model_name='Swe_DEP_7-199')
     # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
 
