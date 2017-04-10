@@ -16,12 +16,12 @@ import os
 import time
 
 # TODO: replace with FLAGS
-model_dir = 'models'
+model_dir = os.path.join('D:', 'data', 'models')
 
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
 SWE_BATCH_SIZE = 10
-NUM_THREADS = 3
+NUM_THREADS = 4
 
 
 def numParams():

@@ -7,10 +7,13 @@ import ast
 import os
 
 # TODO: replace with FLAGS
-records_dir = "/home/leif/sweden/records"
-labels_dir = "/home/leif/labels"
-# labels_dir = "/Users/HalfLeif/labels"
-# records_dir = "/Users/HalfLeif/sweden/records"
+
+root_dir = 'D:\\Data'
+# root_dir = '/home/leif'
+# root_dir = '/Users/HalfLeif'
+
+records_dir = os.path.join(root_dir, 'sweden', 'records')
+labels_dir = os.path.join(root_dir, 'labels')
 
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
