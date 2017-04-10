@@ -3,28 +3,27 @@ import tensorflow as tf
 
 def encodeYear(year):
     ''' Given digit, encodes year in vector representation'''
-    # ones = tf.mod(year, 10)
-    # year = tf.floordiv(year, 10)
-    # tens = tf.mod(year, 10)
-    # year = tf.floordiv(year, 10)
-    # hundreds = tf.mod(year, 10)
-    #
-    # return [tf.one_hot(d, 10) for d in [hundreds, tens, ones]]
     number = tf.mod(year, 1000)
     return tf.one_hot(number, 1000)
 
+def encodeYearAsDigits(year):
+    ones = tf.mod(year, 10)
+    year = tf.floordiv(year, 10)
+    tens = tf.mod(year, 10)
+    year = tf.floordiv(year, 10)
+    hundreds = tf.mod(year, 10)
 
-def predict(year_prob):
+    return [tf.one_hot(d, 10) for d in [hundreds, tens, ones]]
+
+
+def predict(year_log):
     ''' Given network output, computes prediction.'''
-    # decision = tf.argmax(decision_prob, axis=1)
-    year = 1000 + tf.argmax(year_prob, axis=1)
-    # digits = [tf.argmax(prob, axis=1) for prob in year_prob]
+    # year = 1000 + tf.argmax(year_prob, axis=1)
+    digits = [tf.argmax(prob, axis=1) for prob in year_log]
 
     # Combine scalar values to a full year
-    # year = 1000 + sum([x*y for x,y in zip([100, 10, 1], digits)])
+    year = 1000 + sum([x*y for x,y in zip([100, 10, 1], digits)])
 
-    # decision is either 0 or 1, so returns -1 or `year`.
-    # return tf.cast(decision*year + (decision-1), tf.int32)
     return tf.cast(year, tf.int32)
 
 def certainty(year_prob, years):
@@ -76,16 +75,17 @@ def error(year, year_log):
     #                                                          decision_label)
 
     # Experiment with independent digit learning instead of combined...
-    # encoded_year = encodeYear(year)
-    # compare_years = [tf.nn.softmax_cross_entropy_with_logits(x, y)
-    #                  for x, y in zip(year_log, encoded_year)]
-    # year_error = sum(compare_years)
-    year = tf.mod(year, 1000)
-    year_label = tf.one_hot(year, 1000)
-    year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_log,
-                                                         labels=year_label)
+    encoded_year = encodeYearAsDigits(year)
+    compare_years = [tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
+                     for x, y in zip(year_log, encoded_year)]
+    year_error = sum(compare_years)
 
-    year_prob = tf.nn.softmax(year_log)
+    # year = tf.mod(year, 1000)
+    # year_label = tf.one_hot(year, 1000)
+    # year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_log,
+    #                                                      labels=year_label)
+    #
+    # year_prob = tf.nn.softmax(year_log)
     return year_error
     # return year_error + clusterError(year_prob)
 

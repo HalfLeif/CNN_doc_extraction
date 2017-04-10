@@ -96,11 +96,12 @@ def py_printCompare(expected, output, accuracy, certainties):
             prefix = '   '
         else:
             prefix = ' X '
-        print(prefix, expected[i], '->', output[i], '  ', certainties[i])
+        # print(prefix, expected[i], '->', output[i], '  ', certainties[i])
+        print(prefix, expected[i], '->', output[i])
 
     print('In total ' + str(len(expected)) + ' pairs evaluated...')
     print('Accuracy:', accuracy)
-    print('Mean certainty:', sum(certainties)/len(certainties))
+    # print('Mean certainty:', sum(certainties)/len(certainties))
     return np.int32(len(expected))
 
 eval_batch_size = tf.placeholder_with_default(50, [], name='eval_batch_size')
@@ -113,19 +114,19 @@ def testOp(pretrain=True):
         # batch_images, batch_years = iris.irisQueue(iris_test, 3)
         batch_images, batch_years, _ = swe.sweBatch(SWE_BATCH_SIZE, False)
     year_log = runNetwork(batch_images, False)
-    year_prob = tf.nn.softmax(year_log)
-    pred = sc.predict(year_prob)
-    certainties = sc.certainty(year_prob, batch_years)
+    # year_prob = tf.nn.softmax(year_log)
+    pred = sc.predict(year_log)
+    # certainties = sc.certainty(year_prob, batch_years)
 
     remapped = tf.mod(batch_years, 1000) + 1000
     correct_prediction = tf.equal(remapped, pred)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, certainties], tf.int32, stateful=True)
+    debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, 1], tf.int32, stateful=True)
     accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
 
     return accuracy
 
-pretrain_mnist = False
+pretrain_mnist = True
 train_step, num_batches = trainOp(pretrain_mnist)
 accuracy = testOp(pretrain_mnist)
 
@@ -196,13 +197,13 @@ with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
     printNumParams()
     print('INIT VARIABLES!')
-    # sess.run(tf.global_variables_initializer())
+    sess.run(tf.global_variables_initializer())
 
     print('Start threads...')
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(coord=coord)
 
-    loadModel(sess, model_name=None)
+    # loadModel(sess, model_name=None)
     # loadModel(sess, model_name='Swe_DEP_7-199')
     # loadModel(sess, model_name='DEM_pad_random_25-1099')
     # loadModel(sess, model_name='DEB_pad_random_12-1099')
@@ -210,10 +211,10 @@ with tf.Session(config=tf.ConfigProto(
     print('System ready!')
     time_start = time.process_time()
 
-    epoch_start = 3
-    for i in range(100):
+    epoch_start = 1
+    for i in range(10):
         epoch = epoch_start + i
-        model_name = 'SDEP_continue_' + str(epoch)
+        model_name = 'Single_digit_PRE_' + str(epoch)
         train(model_name)
 
     evaluate()
