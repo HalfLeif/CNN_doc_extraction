@@ -37,10 +37,19 @@ def certainty(year_prob, years):
     return certainties
 
 def clusterError(year_prob):
-    ''' Returns cost for having multiple clusters.
+    ''' DEPRECATED.
+        Returns cost for having multiple clusters.
         Takes into account distances between years.
         Expects input in batch mode.
-        The error value will always be in the range [0, 1).'''
+        The error value will always be in the range [0, 1).
+
+        This method has several problems:
+        1. For a uniform probability vector, it has strong bias for
+           different years. That means that some year labels will have
+           greater influence than others on the training.
+        2. For a probability vector x=[0.5, 0, 0, 0, ... 0, 0.5], the cluster
+           error is minimized in the middle, not at the edges as expected!
+        '''
     largest_cluster = tf.argmax(year_prob, axis=1)
     largest_cluster = tf.cast(largest_cluster, dtype=tf.float32)
 
@@ -77,7 +86,8 @@ def error(year, year_log):
                                                          labels=year_label)
 
     year_prob = tf.nn.softmax(year_log)
-    return year_error + clusterError(year_prob)
+    return year_error
+    # return year_error + clusterError(year_prob)
 
     # total_err = tf.reduce_mean(decision_error + year_error)
     # return total_err
