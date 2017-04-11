@@ -104,7 +104,8 @@ def loadCollection(collection_name, train=True):
             image_path = os.path.join(records_dir, collection_name, 'Images', image_name + '.jpg')
             if os.path.exists(image_path):
                 image_files.append(image_path)
-                years.append(max(year_list))
+                pair = (min(year_list), max(year_list))
+                years.append(pair)
             else:
                 missing_files += 1
                 missing_example = image_name

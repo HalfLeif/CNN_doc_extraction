@@ -110,4 +110,6 @@ def mnistSample(train_mode):
 
 def mnistBatch(batch_size, train_mode):
     wide_image, year = mnistSample(train_mode)
+    year = tf.stack([year, year])
+    print('DEBUG_EYAR', year.get_shape())
     return tf.train.batch([wide_image, year], batch_size=batch_size)

@@ -81,28 +81,30 @@ def trainOp(pretrain=True):
         batch_images, batch_years, num_batches = swe.sweBatch(SWE_BATCH_SIZE, True)
         print('Each epoch runs for', num_batches, 'batches, each with', SWE_BATCH_SIZE, 'images.')
 
-    remapped = tf.mod(batch_years, 1000) + 1000
     year_log = runNetwork(batch_images, True)
-
-    error = sc.error(remapped, year_log)
+    error = sc.error(batch_years, year_log)
     train_step = tf.train.AdamOptimizer(1e-4).minimize(error)
 
     return train_step, num_batches
 
-def py_printCompare(expected, output, accuracy, certainties):
-    iterations = min(len(expected), 25)
+def py_printCompare(min_expected, max_expected, output, accuracy, certainties):
+    iterations = min(len(min_expected), 25)
     for i in range(iterations):
-        if expected[i] == output[i]:
+        if min_expected[i] <= output[i] and max_expected[i] >= output[i]:
             prefix = '   '
         else:
             prefix = ' X '
         # print(prefix, expected[i], '->', output[i], '  ', certainties[i])
-        print(prefix, expected[i], '->', output[i])
+        upper = max_expected[i]
+        if upper == min_expected[i]:
+            upper = '    '
+        print(prefix, min_expected[i], upper, '->', output[i])
 
-    print('In total ' + str(len(expected)) + ' pairs evaluated...')
+    print('In total ' + str(len(min_expected)) + ' pairs evaluated...')
     print('Accuracy:', accuracy)
     # print('Mean certainty:', sum(certainties)/len(certainties))
-    return np.int32(len(expected))
+    return np.int32(len(min_expected))
+
 
 def py_printProbabilities(year_prob):
     for i in range(10):
@@ -119,17 +121,30 @@ def testOp(pretrain=True):
         # batch_images, batch_years = iris.irisQueue(iris_test, 3)
         batch_images, batch_years, _ = swe.sweBatch(SWE_BATCH_SIZE, False)
     year_log = runNetwork(batch_images, False)
-    # year_prob = tf.nn.softmax(year_log)
+    year_prob = tf.nn.softmax(year_log)
     pred = sc.predict(year_log)
-    # certainties = sc.certainty(year_prob, batch_years)
 
-    remapped = tf.mod(batch_years, 1000) + 1000
-    correct_prediction = tf.equal(remapped, pred)
+    min_year = tf.squeeze(tf.slice(batch_years, [0,0], [-1,1]))
+    max_year = tf.squeeze(tf.slice(batch_years, [0,1], [-1,1]))
+    # mid_year = tf.floordiv(min_year + max_year, 2)
+
+    correct_lower = tf.less_equal(min_year, pred)
+    correct_upper = tf.greater_equal(max_year, pred)
+
+    correct_prediction = tf.logical_and(correct_lower, correct_upper)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+<<<<<<< HEAD
     debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, 1], tf.int32, stateful=True)
     debug_prob = tf.py_func(py_printProbabilities, [year_log], tf.int32, stateful=True)
     accuracy = tf.Print(accuracy, ['Debug', debug_prob])
     accuracy = tf.Print(accuracy, ['Debug', debug_pred])
+=======
+
+    # certainties = sc.certainty(year_prob, max_year)
+    # print('DEBUG_CERT', certainties.get_shape())
+    debug_pred = tf.py_func(py_printCompare, [min_year, max_year, pred, accuracy, 1], tf.int32, stateful=True)
+    accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
+>>>>>>> master
 
     return accuracy
 
@@ -212,8 +227,8 @@ with tf.Session(config=tf.ConfigProto(
 
     # loadModel(sess, model_name=None)
     loadModel(sess, model_name='SweDEP_10-499')
-    # loadModel(sess, model_name='DEM_pad_random_25-1099')
-    # loadModel(sess, model_name='DEB_pad_random_12-1099')
+    # loadModel(sess, model_name='Swe_DEP_7-199')
+    # loadModel(sess, model_name='DEP_pad_random_3-1099')
 
     print('System ready!')
     time_start = time.process_time()
@@ -223,15 +238,15 @@ with tf.Session(config=tf.ConfigProto(
     #     epoch = epoch_start + i
     #     model_name = 'Single_digit_PRE_' + str(epoch)
     #     train(model_name)
-    #
+    time_end = time.process_time()
+
     # evaluate()
 
-    accuracy.eval(feed_dict={eval_batch_size: 1})
+    accuracy.eval(feed_dict={eval_batch_size: 100})
 
     # writeReEncoded()
     # runTimeEstimate(sess)
 
-    time_end = time.process_time()
     print('CPU time: ', time_end - time_start)
 
     coord.request_stop()
