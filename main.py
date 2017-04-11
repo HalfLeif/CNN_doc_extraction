@@ -95,7 +95,7 @@ def py_printCompare(min_expected, max_expected, output, accuracy, certainties):
         else:
             prefix = ' X '
         # print(prefix, expected[i], '->', output[i], '  ', certainties[i])
-        print(prefix, expected[i], '->', output[i])
+        print(prefix, min_expected[i], max_expected[i], '->', output[i])
 
     print('In total ' + str(len(min_expected)) + ' pairs evaluated...')
     print('Accuracy:', accuracy)
@@ -116,8 +116,6 @@ def testOp(pretrain=True):
     year_prob = tf.nn.softmax(year_log)
     pred = sc.predict(year_log)
 
-    # remapped = tf.mod(batch_years, 1000) + 1000
-
     min_year = tf.slice(batch_years, [0,0], [-1,1])
     max_year = tf.slice(batch_years, [0,1], [-1,1])
     # mid_year = tf.floordiv(min_year + max_year, 2)
@@ -128,9 +126,9 @@ def testOp(pretrain=True):
     correct_prediction = tf.logical_and(correct_lower, correct_upper)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-    certainties = sc.certainty(year_prob, max_year)
-    print('DEBUG_CERT', certainties.get_shape())
-    debug_pred = tf.py_func(py_printCompare, [min_year, max_year, pred, accuracy, certainties], tf.int32, stateful=True)
+    # certainties = sc.certainty(year_prob, max_year)
+    # print('DEBUG_CERT', certainties.get_shape())
+    debug_pred = tf.py_func(py_printCompare, [min_year, max_year, pred, accuracy, 1], tf.int32, stateful=True)
     accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
 
     return accuracy
@@ -214,7 +212,7 @@ with tf.Session(config=tf.ConfigProto(
 
     # loadModel(sess, model_name=None)
     # loadModel(sess, model_name='Swe_DEP_7-199')
-    loadModel(sess, model_name='DEP_pad_random_3-1099')
+    # loadModel(sess, model_name='DEP_pad_random_3-1099')
 
     print('System ready!')
     time_start = time.process_time()
