@@ -107,8 +107,10 @@ def py_printCompare(min_expected, max_expected, output, accuracy, certainties):
 
 
 def py_printProbabilities(year_prob):
+    s = ''
     for i in range(10):
-        print(i, year_prob[0][0][i], year_prob[1][0][i], year_prob[2][0][i])
+        s += '{:d}  {:>6.2f} {:>6.2f} {:>6.2f}\n'.format(i, year_prob[0][0][i], year_prob[1][0][i], year_prob[2][0][i])
+    print(s)
     return np.int32(1)
 
 eval_batch_size = tf.placeholder_with_default(50, [], name='eval_batch_size')
@@ -124,8 +126,8 @@ def testOp(pretrain=True):
     year_prob = tf.nn.softmax(year_log)
     pred = sc.predict(year_log)
 
-    min_year = tf.squeeze(tf.slice(batch_years, [0,0], [-1,1]))
-    max_year = tf.squeeze(tf.slice(batch_years, [0,1], [-1,1]))
+    min_year = tf.slice(batch_years, [0,0], [-1,1])
+    max_year = tf.slice(batch_years, [0,1], [-1,1])
     # mid_year = tf.floordiv(min_year + max_year, 2)
 
     correct_lower = tf.less_equal(min_year, pred)
@@ -133,18 +135,13 @@ def testOp(pretrain=True):
 
     correct_prediction = tf.logical_and(correct_lower, correct_upper)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-<<<<<<< HEAD
-    debug_pred = tf.py_func(py_printCompare, [batch_years, pred, accuracy, 1], tf.int32, stateful=True)
-    debug_prob = tf.py_func(py_printProbabilities, [year_log], tf.int32, stateful=True)
-    accuracy = tf.Print(accuracy, ['Debug', debug_prob])
-    accuracy = tf.Print(accuracy, ['Debug', debug_pred])
-=======
 
     # certainties = sc.certainty(year_prob, max_year)
     # print('DEBUG_CERT', certainties.get_shape())
     debug_pred = tf.py_func(py_printCompare, [min_year, max_year, pred, accuracy, 1], tf.int32, stateful=True)
-    accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)
->>>>>>> master
+    debug_prob = tf.py_func(py_printProbabilities, [year_log], tf.int32, stateful=True)
+    accuracy = tf.Print(accuracy, ['Debug', debug_prob])
+    accuracy = tf.Print(accuracy, ['Debug', debug_pred])
 
     return accuracy
 
@@ -242,7 +239,7 @@ with tf.Session(config=tf.ConfigProto(
 
     # evaluate()
 
-    accuracy.eval(feed_dict={eval_batch_size: 100})
+    accuracy.eval(feed_dict={eval_batch_size: 1})
 
     # writeReEncoded()
     # runTimeEstimate(sess)
