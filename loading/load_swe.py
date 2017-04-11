@@ -72,14 +72,6 @@ def loadEvalSet():
         years += train_years + test_years
     return imgs, years
 
-def isConsecutive(year_list):
-    last = None
-    for year in year_list:
-        if last and last != year - 1:
-            return False
-        last = year
-    return True
-
 def loadCollection(collection_name, train=True):
     image_files = []
     years = []
@@ -109,9 +101,7 @@ def loadCollection(collection_name, train=True):
             image_path = os.path.join(records_dir, collection_name, 'Images', image_name + '.jpg')
             if os.path.exists(image_path):
                 image_files.append(image_path)
-                if not isConsecutive(year_list):
-                    print('Warning, found inconsecutive label:', year_list)
-                pair = (min(year_list), len(year_list))
+                pair = (min(year_list), max(year_list))
                 years.append(pair)
             else:
                 missing_files += 1

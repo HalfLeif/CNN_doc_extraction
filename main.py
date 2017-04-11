@@ -118,9 +118,8 @@ def testOp(pretrain=True):
     # remapped = tf.mod(batch_years, 1000) + 1000
 
     min_year = tf.slice(batch_years, [0,0], [-1,1])
-    len_year = tf.slice(batch_years, [0,1], [-1,1])
-    mid_year = min_year + tf.floordiv(len_year, 2)
-    max_year = min_year + len_year - 1
+    max_year = tf.slice(batch_years, [0,1], [-1,1])
+    # mid_year = tf.floordiv(min_year + max_year, 2)
 
     correct_lower = tf.less_equal(min_year, pred)
     correct_upper = tf.greater_equal(max_year, pred)
@@ -128,7 +127,7 @@ def testOp(pretrain=True):
     correct_prediction = tf.logical_and(correct_lower, correct_upper)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-    certainties = sc.certainty(year_prob, mid_year)
+    certainties = sc.certainty(year_prob, max_year)
     print('DEBUG_CERT', certainties.get_shape())
     debug_pred = tf.py_func(py_printCompare, [min_year, max_year, pred, accuracy, certainties], tf.int32, stateful=True)
     accuracy = tf.Print(accuracy, ['Compare', debug_pred], summarize=MNIST_BATCH_SIZE)

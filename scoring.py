@@ -83,9 +83,8 @@ def error(year_pair, year_log):
     # year_error = sum(compare_years)
 
     min_year = tf.slice(year_pair, [0,0], [-1,1])
-    len_year = tf.slice(year_pair, [0,1], [-1,1])
-    print('YEAR SHAPE', min_year.get_shape(), len_year.get_shape())
-    year = min_year + tf.floordiv(len_year, 2)
+    max_year = tf.slice(year_pair, [0,1], [-1,1])
+    year = tf.floordiv(min_year + max_year, 2)
 
     year = tf.mod(year, 1000)
     year_label = tf.one_hot(year, 1000)
