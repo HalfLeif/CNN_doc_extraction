@@ -95,7 +95,10 @@ def py_printCompare(min_expected, max_expected, output, accuracy, certainties):
         else:
             prefix = ' X '
         # print(prefix, expected[i], '->', output[i], '  ', certainties[i])
-        print(prefix, min_expected[i], max_expected[i], '->', output[i])
+        upper = max_expected[i]
+        if upper == min_expected[i]:
+            upper = '    '
+        print(prefix, min_expected[i], upper, '->', output[i])
 
     print('In total ' + str(len(min_expected)) + ' pairs evaluated...')
     print('Accuracy:', accuracy)
@@ -116,8 +119,8 @@ def testOp(pretrain=True):
     year_prob = tf.nn.softmax(year_log)
     pred = sc.predict(year_log)
 
-    min_year = tf.slice(batch_years, [0,0], [-1,1])
-    max_year = tf.slice(batch_years, [0,1], [-1,1])
+    min_year = tf.squeeze(tf.slice(batch_years, [0,0], [-1,1]))
+    max_year = tf.squeeze(tf.slice(batch_years, [0,1], [-1,1]))
     # mid_year = tf.floordiv(min_year + max_year, 2)
 
     correct_lower = tf.less_equal(min_year, pred)
