@@ -47,7 +47,7 @@ def decodeNumber(net, keep_prob):
         # Note: this adds redundancy but is necessary
         # in order to require the exact year
         # instead of giving credit for partially correct year transcriptions.
-        stacked_digits = tf.stack([digit1, digit2, digit3], axis=1)
-        numbers = tf.map_fn(expandDigits, stacked_digits)
+        return [digit1, digit2, digit3]
+        # numbers = tf.map_fn(expandDigits, stacked_digits)
         # return ignore, numbers
-        return numbers
+        # return numbers
