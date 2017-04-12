@@ -1,6 +1,6 @@
 
 import img_debug as debug
-import loading.load_iris as iris
+# import loading.load_iris as iris
 import loading.load_swe as swe
 import network.attend as att
 import network.decoder as dec
@@ -20,7 +20,7 @@ model_dir = 'models'
 
 MNIST_BATCH_SIZE = 50
 IRIS_BATCH_SIZE = 1
-SWE_BATCH_SIZE = 10
+SWE_BATCH_SIZE = 7
 NUM_THREADS = 3
 
 pretrain_mnist = True
@@ -202,17 +202,26 @@ def test(total_test=500, eval_size=SWE_BATCH_SIZE):
     ai = ai + 1
     print('Tested ', ai*eval_size, 'acc: ', accs/ai)
 
-def classifyOp(collection):
-    batch_images, _, batch_paths, num_batches = swe.classificationBatch(collection)
+def classifyOp(collection, batch_size=SWE_BATCH_SIZE):
+    batch_images, _, batch_paths, num_batches = swe.classificationBatch(batch_size, collection)
     year_log = runNetwork(batch_images, False)
     return year_log, batch_paths, num_batches
 
 def classify(sess, collection):
     year_log, batch_paths, num_batches = classifyOp(collection)
+    print('YEAR_LOG', year_log[0].get_shape())
 
-
+    classifications = []
     for i in range(num_batches):
         readout_logits, readout_paths = sess.run([year_log, batch_paths])
+        for j in range(len(readout_paths)):
+            digit1 = readout_logits[0][j]
+            digit2 = readout_logits[1][j]
+            digit3 = readout_logits[3][j]
+            classification = (readout_paths[j], digit1, digit2, digit3)
+            classifications.append(classification)
+
+    return classifications
 
 with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
@@ -237,6 +246,8 @@ with tf.Session(config=tf.ConfigProto(
     #     model_name = 'Single_digit_PRE_' + str(epoch)
     #     train(model_name)
 
+    classifications = classify(sess, '1647578')
+    print(classifications)
     time_end = time.process_time()
 
     # test()

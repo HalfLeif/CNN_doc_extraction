@@ -15,7 +15,7 @@ labels_dir = "/home/leif/labels"
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
 
-def makeQueue(all_jpgs, all_years, shuffle=True):
+def makeQueue(batch_size, all_jpgs, all_years, shuffle=True):
     num_batches = int(len(all_years)/batch_size)
 
     jpgs = tf.constant(all_jpgs, tf.string)
@@ -26,7 +26,10 @@ def makeQueue(all_jpgs, all_years, shuffle=True):
     # TODO: ratio 4 or 8?
     image = img.loadImage(jpg_path, ratio=8)
 
-    batch_images, batch_years, batch_paths = tf.train.batch([image, year, jpg_path], batch_size=batch_size, capacity=4, num_threads=2, dynamic_pad=True)
+    batch_images, batch_years, batch_paths = tf.train.batch(
+            [image, year, jpg_path], batch_size=batch_size,
+            capacity=4, num_threads=2,
+            dynamic_pad=True, allow_smaller_final_batch=True)
 
     # Need to invert images after the dynamic padding.
     batch_images = 1 - batch_images
@@ -43,7 +46,7 @@ def sweBatch(batch_size, train_mode):
     else:
         all_jpgs, all_years = loadTestSet()
 
-    return makeQueue(all_jpgs, all_years, shuffle=True)
+    return makeQueue(batch_size, all_jpgs, all_years, shuffle=True)
 
 
 def classificationBatch(batch_size, collection):
@@ -52,7 +55,7 @@ def classificationBatch(batch_size, collection):
     all_imgs = train_imgs + test_imgs
     all_years = train_years + test_years
 
-    return makeQueue(all_imgs, all_years, shuffle=False)
+    return makeQueue(batch_size, all_imgs, all_years, shuffle=False)
 
 def loadTrainingSet():
     imgs = []
