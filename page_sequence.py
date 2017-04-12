@@ -1,4 +1,6 @@
 
+import loading.load_swe as swe
+
 import ast
 import os
 
@@ -54,7 +56,7 @@ def analyzeCollection(filename, distribution, denominator):
 
         if isSameBook(prev_book, book):
             addExample(distribution, prev_year_list, year_list)
-            denominator += 1
+            denominator += 1.0
         else:
             prev_book = book
 
@@ -65,11 +67,13 @@ def analyzeCollection(filename, distribution, denominator):
 if __name__ == '__main__':
     page_index_dir = os.path.join('data', 'labels_index', 'page_index')
     distribution = {}
-    denominator = 0
+    denominator = 0.0
 
-    for filename in os.listdir(page_index_dir):
-        path = os.path.join(page_index_dir, filename)
+    # for filename in os.listdir(page_index_dir):
+    for filename in swe.swe_train_collections:
+        path = os.path.join(page_index_dir, filename+'.csv')
         distribution, denominator = analyzeCollection(path, distribution, denominator)
 
+    print(denominator)
     for key in sorted(distribution.keys()):
         print(key, distribution[key])
