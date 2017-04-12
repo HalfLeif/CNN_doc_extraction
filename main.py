@@ -184,7 +184,7 @@ def runTimeEstimate(sess):
 
     tl = timeline.Timeline(run_metadata.step_stats)
     ctf = tl.generate_chrome_trace_format()
-    with open('data\\timeline.json', 'w') as f:
+    with open('data\\timeline.json', 'w+') as f:
         f.write(ctf)
     print('WROTE TIMELINE')
 
@@ -211,17 +211,25 @@ def classify(sess, collection):
     year_log, batch_paths, num_batches = classifyOp(collection)
     print('YEAR_LOG', year_log[0].get_shape())
 
-    classifications = []
     for i in range(num_batches):
         readout_logits, readout_paths = sess.run([year_log, batch_paths])
         for j in range(len(readout_paths)):
             digit1 = readout_logits[0][j]
             digit2 = readout_logits[1][j]
             digit3 = readout_logits[3][j]
-            classification = (readout_paths[j], digit1, digit2, digit3)
-            classifications.append(classification)
+            yield readout_paths[j], digit1, digit2, digit3
 
-    return classifications
+def saveClassifications(collection, classifications):
+    directory = os.path.join('data', 'classification')
+    os.makedirs(directory)
+
+    filename = os.path.join(directory, collection+'.csv')
+    with open(filename, 'w+') as f:
+        for classification in classifications:
+        # for img_path, digit1, digit2, digit3 in classifications:
+            line = ' | '.join(classification)
+            f.write(line)
+    print('Wrote file', filename)
 
 with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
@@ -247,7 +255,7 @@ with tf.Session(config=tf.ConfigProto(
     #     train(model_name)
 
     classifications = classify(sess, '1647578')
-    print(classifications)
+    saveClassifications('1647578', classifications)
     time_end = time.process_time()
 
     # test()
