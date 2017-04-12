@@ -15,6 +15,26 @@ labels_dir = "/home/leif/labels"
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
 
+def makeQueue(all_jpgs, all_years, shuffle=True):
+    num_batches = int(len(all_years)/batch_size)
+
+    jpgs = tf.constant(all_jpgs, tf.string)
+    years = tf.constant(all_years, tf.int32)
+
+    jpg_path, year = tf.train.slice_input_producer([jpgs, years], shuffle=shuffle, capacity=25)
+    # jpg_path = tf.Print(jpg_path, ['Load swe image: ', jpg_path], summarize=100)
+    # TODO: ratio 4 or 8?
+    image = img.loadImage(jpg_path, ratio=8)
+
+    batch_images, batch_years, batch_paths = tf.train.batch([image, year, jpg_path], batch_size=batch_size, capacity=4, num_threads=2, dynamic_pad=True)
+
+    # Need to invert images after the dynamic padding.
+    batch_images = 1 - batch_images
+
+    # batch_images = tf.Print(batch_images, ['DEBUG', debug.debugFirstImage(batch_images, 'SWE')])
+
+    print('Swe queue created')
+    return batch_images, batch_years, batch_paths, num_batches
 
 def sweBatch(batch_size, train_mode):
     print('Load transcriptions')
@@ -23,26 +43,16 @@ def sweBatch(batch_size, train_mode):
     else:
         all_jpgs, all_years = loadTestSet()
 
-    num_batches = int(len(all_years)/batch_size)
+    return makeQueue(all_jpgs, all_years, shuffle=True)
 
-    jpgs = tf.constant(all_jpgs, tf.string)
-    years = tf.constant(all_years, tf.int32)
 
-    jpg_path, year = tf.train.slice_input_producer([jpgs, years], shuffle=True, capacity=25)
-    # jpg_path = tf.Print(jpg_path, ['Load swe image: ', jpg_path], summarize=100)
-    # TODO: ratio 4 or 8?
-    image = img.loadImage(jpg_path, ratio=8)
+def classificationBatch(batch_size, collection):
+    train_imgs, train_years = loadCollection(collection, train=True)
+    test_imgs, test_years = loadCollection(collection, train=False)
+    all_imgs = train_imgs + test_imgs
+    all_years = train_years + test_years
 
-    batch_images, batch_years = tf.train.batch([image, year], batch_size=batch_size, capacity=4, num_threads=2, dynamic_pad=True)
-
-    # Need to invert images after the dynamic padding.
-    batch_images = 1 - batch_images
-
-    # batch_images = tf.Print(batch_images, ['DEBUG', debug.debugFirstImage(batch_images, 'SWE')])
-
-    print('Swe queue created')
-    return batch_images, batch_years, num_batches
-
+    return makeQueue(all_imgs, all_years, shuffle=False)
 
 def loadTrainingSet():
     imgs = []

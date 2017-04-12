@@ -23,6 +23,8 @@ IRIS_BATCH_SIZE = 1
 SWE_BATCH_SIZE = 10
 NUM_THREADS = 3
 
+pretrain_mnist = True
+
 
 def numParams():
     def varParams(var):
@@ -78,7 +80,7 @@ def trainOp(pretrain=True):
         num_batches = int(55000/MNIST_BATCH_SIZE)
     else:
         # batch_images, batch_years = iris.irisQueue(iris_train, IRIS_BATCH_SIZE)
-        batch_images, batch_years, num_batches = swe.sweBatch(SWE_BATCH_SIZE, True)
+        batch_images, batch_years, _, num_batches = swe.sweBatch(SWE_BATCH_SIZE, True)
         print('Each epoch runs for', num_batches, 'batches, each with', SWE_BATCH_SIZE, 'images.')
 
     year_log = runNetwork(batch_images, True)
@@ -105,16 +107,13 @@ def py_printCompare(min_expected, max_expected, output, accuracy, certainties):
     # print('Mean certainty:', sum(certainties)/len(certainties))
     return np.int32(len(min_expected))
 
-
-eval_batch_size = tf.placeholder_with_default(50, [], name='eval_batch_size')
-
-def testOp(pretrain=True):
+def testOp(pretrain=True, eval_size=SWE_BATCH_SIZE):
     tf.get_variable_scope().reuse_variables()
     if pretrain:
-        batch_images, batch_years = mnist.mnistBatch(eval_batch_size, False)
+        batch_images, batch_years = mnist.mnistBatch(eval_size, False)
     else:
         # batch_images, batch_years = iris.irisQueue(iris_test, 3)
-        batch_images, batch_years, _ = swe.sweBatch(SWE_BATCH_SIZE, False)
+        batch_images, batch_years, _, _ = swe.sweBatch(eval_size, False)
     year_log = runNetwork(batch_images, False)
     year_prob = tf.nn.softmax(year_log)
     pred = sc.predict(year_log)
@@ -136,9 +135,6 @@ def testOp(pretrain=True):
 
     return accuracy
 
-pretrain_mnist = True
-train_step, num_batches = trainOp(pretrain_mnist)
-accuracy = testOp(pretrain_mnist)
 
 def saveModel(saver, model_name, step):
     print('Saving ', model_name)
@@ -146,6 +142,7 @@ def saveModel(saver, model_name, step):
     save_path = saver.save(sess, save_name, global_step=step, write_meta_graph=False)
 
 def train(model_name):
+    train_step, num_batches = trainOp(pretrain_mnist)
     saver = tf.train.Saver(max_to_keep=3)
 
     for i in range(num_batches):
@@ -181,6 +178,7 @@ def runTimeEstimate(sess):
     '''
     run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
     run_metadata = tf.RunMetadata()
+    train_step, _ = trainOp(pretrain_mnist)
 
     sess.run(train_step, options=run_options, run_metadata=run_metadata)
 
@@ -190,18 +188,31 @@ def runTimeEstimate(sess):
         f.write(ctf)
     print('WROTE TIMELINE')
 
-def evaluate():
-    batch_size=SWE_BATCH_SIZE
+def test(total_test=500, eval_size=SWE_BATCH_SIZE):
+    accuracy = testOp(pretrain_mnist, eval_size=eval_size)
 
     accs = 0
-    for ai in range(50):
+    iterations = total_test/eval_size
+    for ai in range(iterations):
         if ai%10 == 0 and ai > 0:
-            print('Tested ', ai*batch_size, 'acc: ', accs/ai)
-        acc = accuracy.eval(feed_dict={eval_batch_size: batch_size})
+            print('Tested ', ai*eval_size, 'acc: ', accs/ai)
+        acc = accuracy.eval()
         accs = accs + acc
 
     ai = ai + 1
-    print('Tested ', ai*batch_size, 'acc: ', accs/ai)
+    print('Tested ', ai*eval_size, 'acc: ', accs/ai)
+
+def classifyOp(collection):
+    batch_images, _, batch_paths, num_batches = swe.classificationBatch(collection)
+    year_log = runNetwork(batch_images, False)
+    return year_log, batch_paths, num_batches
+
+def classify(sess, collection):
+    year_log, batch_paths, num_batches = classifyOp(collection)
+
+
+    for i in range(num_batches):
+        readout_logits, readout_paths = sess.run([year_log, batch_paths])
 
 with tf.Session(config=tf.ConfigProto(
         intra_op_parallelism_threads=NUM_THREADS)) as sess:
@@ -228,9 +239,7 @@ with tf.Session(config=tf.ConfigProto(
 
     time_end = time.process_time()
 
-    # evaluate()
-
-    accuracy.eval(feed_dict={eval_batch_size: 100})
+    # test()
 
     # writeReEncoded()
     # runTimeEstimate(sess)
