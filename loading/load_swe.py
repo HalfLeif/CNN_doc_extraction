@@ -98,6 +98,10 @@ def loadCollection(collection_name, train=True):
             if not year_list:
                 continue
 
+            # Skip images which have multiple years:
+            if len(year_list) > 1:
+                continue
+
             image_path = os.path.join(records_dir, collection_name, 'Images', image_name + '.jpg')
             if os.path.exists(image_path):
                 image_files.append(image_path)
