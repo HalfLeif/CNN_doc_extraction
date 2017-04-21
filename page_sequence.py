@@ -160,11 +160,9 @@ def printBooks():
     for book_id, page_seq in organized:
         print(book_id, len(page_seq))
         for image_id, year_seq in page_seq:
-            if(year_seq):
+            if image_id in predictions:
                 print('\t',image_id, predictions[image_id], year_seq)
-        break
 
 
 if __name__ == '__main__':
-    # print(parseArray('[-35.44095993042 , -36.24006652832 , -35.09700012207 , -35.168487548828, -35.399478912354, -35.65990447998 ,  -6.392877101898,   4.836149215698,  -3.375225305557, -35.272720336914]'))
     printBooks()
