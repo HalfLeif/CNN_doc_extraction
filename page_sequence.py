@@ -105,19 +105,10 @@ def parseArray(arr_str):
     elems[last] = elems[last].rstrip(']\n ')
 
     numbers = []
-
-
-    # numbers = ast.literal_eval(arr_str)
-
-    try:
-        for elem in elems:
-            if elem:
-                numbers.append(float(elem))
-        return np.array(numbers)
-    except:
-        print(arr_str)
-        print(elems)
-        raise
+    for elem in elems:
+        if elem:
+            numbers.append(float(elem))
+    return np.array(numbers)
 
 
 def loadClassifications(collection):
@@ -125,19 +116,12 @@ def loadClassifications(collection):
     with open(filename, 'r') as read_file:
         pattern = re.compile('([A-Z0-9-]*)\\.jpg')
         for line in read_file:
-            try:
-                [img_path, logits_1, logits_2, logits_3] = line.split(' | ')
-                img_id = pattern.search(img_path).group(1)
-                yield (img_id,
-                    parseArray(logits_1),
-                    parseArray(logits_2),
-                    parseArray(logits_3))
-            except ValueError:
-                print(line)
-                # print(logits_1)
-                # print(logits_2)
-                # print(logits_3)
-                raise
+            [img_path, logits_1, logits_2, logits_3] = line.split(' | ')
+            img_id = pattern.search(img_path).group(1)
+            yield (img_id,
+                parseArray(logits_1),
+                parseArray(logits_2),
+                parseArray(logits_3))
 
 def prediction(logits_1, logits_2, logits_3):
     digits = [np.argmax(logits) for logits in [logits_1, logits_2, logits_3]]
