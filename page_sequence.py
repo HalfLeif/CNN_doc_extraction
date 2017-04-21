@@ -75,6 +75,21 @@ def printDistribution():
     for key in sorted(distribution.keys()):
         print(key, distribution[key])
 
+def loadDistribution(filename):
+    denominator = None
+    distribution = {}
+    for line in open(filename, 'r'):
+        if line.startswith('#'):
+            continue
+        if denominator == None:
+            denominator = float(line)
+        else:
+            [diff, count] = line.split(' ')
+            distribution[int(diff)] = float(count)
+    return distribution, denominator
+
+
+
 def organizeToBooks(filename):
     print('# Organizing', filename)
     page_dict = buildImageDict(filename)
@@ -149,4 +164,7 @@ def printBooks():
 
 
 if __name__ == '__main__':
-    printBooks()
+    # printBooks()
+    distribution, denominator = loadDistribution(os.path.join('data', 'jump_distribution.csv'))
+    print(denominator)
+    print(distribution)
