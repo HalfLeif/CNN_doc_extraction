@@ -1,5 +1,7 @@
 
 import loading.load_swe as swe
+import postprocess.jump_distribution as jp
+import util.dict_util as du
 
 import numpy as np
 
@@ -8,99 +10,17 @@ import os
 import re
 
 
-def buildImageDict(filename):
-    page_dict = {}
-    with open(filename, 'r', newline='\n') as csvfile:
-        for line in csvfile:
-            fields = line.split(' | ')
-            image_id = fields[0]
-            years = fields[1]
-            sort_value = fields[2]
-            book_id = '-'.join(fields[3:]).rstrip('\n')
-
-            page_dict[sort_value] = (years, book_id, image_id)
-    return page_dict
-
-def traverseSorted(dictionary):
-    for key in sorted(dictionary.keys()):
-        yield dictionary[key]
-
-def increment(distribution, key, incr):
-    if key in distribution:
-        distribution[key] += incr
-    else:
-        distribution[key] = incr
-
-def addExample(distribution, prev, current):
-    num_combinations = len(prev) * len(current)
-    for y1 in prev:
-        for y2 in current:
-            diff = y2 - y1
-            increment(distribution, diff, 1.0/num_combinations)
-
-def isSameBook(book_id1, book_id2):
-    return book_id1 == book_id2
-
-def analyzeCollection(filename, distribution, denominator):
-    print('# Analyzing', filename)
-    page_dict = buildImageDict(filename)
-
-    prev_year_list = []
-    prev_book_id = None
-    for year_str, book_id, image_id in traverseSorted(page_dict):
-        year_list = ast.literal_eval(year_str)
-
-        if isSameBook(prev_book_id, book_id):
-            addExample(distribution, prev_year_list, year_list)
-            denominator += 1.0
-        else:
-            prev_book_id = book_id
-
-        prev_year_list = year_list
-
-    return distribution, denominator
-
-def printDistribution():
-    page_index_dir = os.path.join('data', 'labels_index', 'page_index')
-    distribution = {}
-    denominator = 0.0
-
-    # for filename in os.listdir(page_index_dir):
-    for filename in swe.swe_train_collections:
-    # for filename in ['1647578']:
-        path = os.path.join(page_index_dir, filename+'.csv')
-        distribution, denominator = analyzeCollection(path, distribution, denominator)
-
-    print(denominator)
-    for key in sorted(distribution.keys()):
-        print(key, distribution[key])
-
-def loadDistribution(filename):
-    denominator = None
-    distribution = {}
-    for line in open(filename, 'r'):
-        if line.startswith('#'):
-            continue
-        if denominator == None:
-            denominator = float(line)
-        else:
-            [diff, count] = line.split(' ')
-            distribution[int(diff)] = float(count)
-    return distribution, denominator
-
-
-
 def organizeToBooks(filename):
     print('# Organizing', filename)
-    page_dict = buildImageDict(filename)
+    page_dict = swe.buildImageDict(filename)
 
     organized_books = []
     page_sequence = []
     prev_book_id = None
-    for year_str, book_id, image_id in traverseSorted(page_dict):
+    for year_str, book_id, image_id in du.traverseSorted(page_dict):
         year_list = ast.literal_eval(year_str)
 
-        if isSameBook(prev_book_id, book_id):
+        if prev_book_id == book_id:
             page = (image_id, year_list)
             page_sequence.append(page)
         else:
@@ -165,6 +85,6 @@ def printBooks():
 
 if __name__ == '__main__':
     # printBooks()
-    distribution, denominator = loadDistribution(os.path.join('data', 'jump_distribution.csv'))
+    distribution, denominator = jp.loadDistribution(os.path.join('data', 'jump_distribution.csv'))
     print(denominator)
     print(distribution)

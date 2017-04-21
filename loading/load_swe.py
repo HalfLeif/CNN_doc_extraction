@@ -103,7 +103,7 @@ def loadCollection(collection_name, train=True):
     with open(labels_file, 'r', newline='\n') as csvfile:
         for line in csvfile:
             fields = line.split(' | ')
-            image_name = fields[0]
+            image_id = fields[0]
             year_str = fields[1]
             year_list = ast.literal_eval(year_str)
 
@@ -111,17 +111,34 @@ def loadCollection(collection_name, train=True):
             if not year_list:
                 continue
 
-            image_path = os.path.join(records_dir, collection_name, 'Images', image_name + '.jpg')
+            image_path = os.path.join(records_dir, collection_name, 'Images', image_id + '.jpg')
             if os.path.exists(image_path):
                 image_files.append(image_path)
                 pair = (min(year_list), max(year_list))
                 years.append(pair)
             else:
                 missing_files += 1
-                missing_example = image_name
+                missing_example = image_id
     if missing_files > 0:
         print('Collection', collection_name, 'is missing', missing_files, 'images, for example', missing_example)
     return image_files, years
+
+
+def buildImageDict(filename):
+    ''' Opens collection label file and builds dictionary of
+        sort_value to (label, book_id, image_id).'''
+    page_dict = {}
+    with open(filename, 'r', newline='\n') as csvfile:
+        for line in csvfile:
+            fields = line.split(' | ')
+            image_id = fields[0]
+            years = fields[1]
+            sort_value = fields[2]
+            book_id = '-'.join(fields[3:]).rstrip('\n')
+
+            page_dict[sort_value] = (years, book_id, image_id)
+    return page_dict
+
 
 if __name__ == '__main__':
     imgs, years = loadTrainingSet()
