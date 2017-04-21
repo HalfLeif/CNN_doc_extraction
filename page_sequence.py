@@ -96,35 +96,26 @@ def organizeToBooks(filename):
 
     return organized_books
 
-def generateN(lines, N):
-    accumulated = []
-    for line in lines:
-        accumulated.append(line.rstrip('\n'))
 
-        if len(accumulated) == 4:
-            yield ''.join(accumulated)
-            accumulated = []
+def parseArray(arr_str):
+    elems = arr_str.split(',')
 
-    if accumulated:
-        yield ''.join(accumulated)
-
-def parseArray(arrStr):
-    # Remove redundant white space
-    elems = arrStr.split()
-
-    elems[0] = elems[0].lstrip('[')
+    elems[0] = elems[0].lstrip(' [')
     last = len(elems) - 1
-    elems[last] = elems[last].rstrip(']')
+    elems[last] = elems[last].rstrip(']\n ')
 
     numbers = []
-    for elem in elems:
-        if elem:
-            numbers.append(float(elem))
+
+
+    # numbers = ast.literal_eval(arr_str)
 
     try:
+        for elem in elems:
+            if elem:
+                numbers.append(float(elem))
         return np.array(numbers)
     except:
-        print(arrStr)
+        print(arr_str)
         print(elems)
         raise
 
@@ -133,9 +124,9 @@ def loadClassifications(collection):
     filename = os.path.join('data', 'classification', collection+'.csv')
     with open(filename, 'r') as read_file:
         pattern = re.compile('([A-Z0-9-]*)\\.jpg')
-        for line in generateN(read_file, 4):
+        for line in read_file:
             try:
-                [img_path, logits_1, logits_2, logits_3] = line.split('|')
+                [img_path, logits_1, logits_2, logits_3] = line.split(' | ')
                 img_id = pattern.search(img_path).group(1)
                 yield (img_id,
                     parseArray(logits_1),
@@ -175,4 +166,5 @@ def printBooks():
 
 
 if __name__ == '__main__':
+    # print(parseArray('[-35.44095993042 , -36.24006652832 , -35.09700012207 , -35.168487548828, -35.399478912354, -35.65990447998 ,  -6.392877101898,   4.836149215698,  -3.375225305557, -35.272720336914]'))
     printBooks()
