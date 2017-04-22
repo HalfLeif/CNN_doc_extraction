@@ -8,3 +8,7 @@ def increment(distribution, key, incr):
         distribution[key] += incr
     else:
         distribution[key] = incr
+
+def printDict(d):
+    for key in d:
+        print(key, d[key])

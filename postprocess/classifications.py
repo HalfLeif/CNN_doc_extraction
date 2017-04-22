@@ -37,3 +37,9 @@ def buildPredictionDict(filename):
         pred = prediction(d1, d2, d3)
         predictions[img_id] = pred
     return predictions
+
+def buildLogitsDict(filename):
+    logits = {}
+    for img_id, *digits in loadClassifications(filename):
+        logits[img_id] = digits
+    return logits

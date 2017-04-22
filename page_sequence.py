@@ -1,6 +1,7 @@
 import postprocess.books as books
 import postprocess.classifications as cs
 import postprocess.jump_distribution as jp
+import util.dict_util as du
 
 import os
 
@@ -22,6 +23,9 @@ def printBooks(collection):
 
 if __name__ == '__main__':
     # printBooks('1647578')
-    distribution, denominator = jp.loadDistribution(os.path.join('data', 'jump_distribution.csv'))
-    print(denominator)
-    print(distribution)
+    # distribution, denominator = jp.loadDistribution(os.path.join('data', 'jump_distribution.csv'))
+    # print(denominator)
+    # print(distribution)
+    cs_file = os.path.join('data', 'classification', '1647578.csv')
+    ls = cs.buildLogitsDict(cs_file)
+    du.printDict(ls)
