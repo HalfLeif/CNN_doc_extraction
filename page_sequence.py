@@ -23,9 +23,11 @@ def printBooks(collection):
 
 if __name__ == '__main__':
     # printBooks('1647578')
-    # distribution, denominator = jp.loadDistribution(os.path.join('data', 'jump_distribution.csv'))
-    # print(denominator)
-    # print(distribution)
-    cs_file = os.path.join('data', 'classification', '1647578.csv')
-    ls = cs.buildLogitsDict(cs_file)
-    du.printDict(ls)
+    jump_file = os.path.join('data', 'jump_distribution.csv')
+    distr = jp.buildObj(1899 - 1690 + 1, laplace=0.5, filename=jump_file)
+    print(distr.probability(0))
+    print(distr.probability(-1))
+    distr.printSelf()
+    # cs_file = os.path.join('data', 'classification', '1647578.csv')
+    # ls = cs.buildLogitsDict(cs_file)
+    # du.printDict(ls)

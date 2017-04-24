@@ -1,6 +1,30 @@
 import loading.load_swe as swe
 import util.dict_util as du
 
+import ast
+import os
+
+class JumpDistribution:
+    def __init__(self, distribution, denominator, year_range, laplace=0.5):
+        self.distribution = distribution
+        self.denominator = denominator
+        self.year_range = year_range
+        self.laplace = laplace
+
+    def probability(self, diff):
+        ''' Returns the unnormalized probability of doing a jump with this
+            year difference between two consecutive pages.
+            Uses laplace smoothing for the probabilities.
+        '''
+        count = self.distribution.get(diff, 0)
+        return (count + self.laplace) / (
+                self.denominator + self.laplace * self.year_range)
+
+    def printSelf(self):
+        print(self.denominator)
+        for key in sorted(self.distribution.keys()):
+            print(key, self.distribution[key])
+
 
 def addExample(distribution, prev, current):
     num_combinations = len(prev) * len(current)
@@ -12,7 +36,7 @@ def addExample(distribution, prev, current):
 
 def addCollection(filename, distribution, denominator):
     print('# Analyzing', filename)
-    page_dict = buildImageDict(filename)
+    page_dict = swe.buildImageDict(filename)
 
     prev_year_list = []
     prev_book_id = None
@@ -41,14 +65,6 @@ def buildDistribution():
 
     return distribution, denominator
 
-
-def printDistribution():
-    distribution, denominator = buildDistribution()
-
-    print(denominator)
-    for key in sorted(distribution.keys()):
-        print(key, distribution[key])
-
 def loadDistribution(filename):
     denominator = None
     distribution = {}
@@ -61,3 +77,10 @@ def loadDistribution(filename):
             [diff, count] = line.split(' ')
             distribution[int(diff)] = float(count)
     return distribution, denominator
+
+def buildObj(year_range, laplace=0.5, filename=None):
+    if filename:
+        distribution, denominator = loadDistribution(filename)
+    else:
+        distribution, denominator = buildDistribution()
+    return JumpDistribution(distribution, denominator, year_range, laplace)
