@@ -13,7 +13,7 @@ def encodeYearAsDigits(year):
     year = tf.floordiv(year, 10)
     hundreds = tf.mod(year, 10)
 
-    return [tf.one_hot(d, 10) for d in [hundreds, tens, ones]]
+    return [tf.one_hot(d, 10, dtype=tf.float32) for d in [hundreds, tens, ones]]
 
 
 def predict(year_log):
@@ -66,17 +66,12 @@ def yearError(year, d1, d2, d3):
     compare_years = [
             tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
             for x, y in zip([d1, d2, d3], encoded_year)]
-    year_error = sum(compare_years)
-    print(year_error)
-    return year_error
+    return sum(compare_years)
 
-def exampleError(year_pair, d1, d2, d3):
-    ''' Error function for a single training example.
+def exampleError(args):
+    ''' Error function for a single training example against all its labels.
     '''
-    # encoded_year = encodeYearAsDigits(year)
-    # compare_years = [tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
-    #                  for x, y in zip(year_log, encoded_year)]
-    # year_error = sum(compare_years)
+    (year_pair, d1, d2, d3) = args
     [min_year, max_year] = tf.unstack(year_pair)
     years = tf.range(min_year, max_year)
     errors = tf.map_fn(lambda y: yearError(y, d1, d2, d3), years, dtype=tf.float32)
@@ -87,21 +82,6 @@ def batchError(year_pair, year_log):
         Label year is an integer in range [1000-1999].
         Supports batches.
     '''
-    year_pairs = tf.unstack(year_pair)
-    [d1, d2, d3] = [tf.unstack(digit) for digit in year_log]
-
-    errors = []
-    for i in range(len(year_pairs)):
-        example_error = exampleError(year_pairs[i], d1[i], d2[i], d3[i])
-        errors.append(example_error)
-
-    # min_year = tf.slice(year_pair, [0,0], [-1,1])
-    # max_year = tf.slice(year_pair, [0,1], [-1,1])
-    # year = tf.floordiv(min_year + max_year, 2)
-    #
-    # encoded_year = encodeYearAsDigits(year)
-    # compare_years = [tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
-    #                  for x, y in zip(year_log, encoded_year)]
-    # year_error = sum(compare_years)
-
-    return sum(errors)
+    [d1, d2, d3] = year_log
+    errors = tf.map_fn(exampleError, (year_pair, d1, d2, d3), dtype=tf.float32)
+    return tf.reduce_sum(errors)
