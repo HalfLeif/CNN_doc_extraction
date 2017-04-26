@@ -61,25 +61,47 @@ def clusterError(year_prob):
     weights = tf.square(diff/y_range)
     return 2 * tf.reduce_sum(weights * year_prob, axis=-1)
 
-def error(year_pair, year_log):
+def yearError(year, d1, d2, d3):
+    encoded_year = encodeYearAsDigits(year)
+    compare_years = [
+            tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
+            for x, y in zip([d1, d2, d3], encoded_year)]
+    year_error = sum(compare_years)
+    print(year_error)
+    return year_error
+
+def exampleError(year_pair, d1, d2, d3):
+    ''' Error function for a single training example.
+    '''
+    # encoded_year = encodeYearAsDigits(year)
+    # compare_years = [tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
+    #                  for x, y in zip(year_log, encoded_year)]
+    # year_error = sum(compare_years)
+    [min_year, max_year] = tf.unstack(year_pair)
+    years = tf.range(min_year, max_year)
+    errors = tf.map_fn(lambda y: yearError(y, d1, d2, d3), years, dtype=tf.float32)
+    return tf.reduce_mean(errors)
+
+def batchError(year_pair, year_log):
     ''' Error function to minimize.
         Label year is an integer in range [1000-1999].
         Supports batches.
     '''
-    min_year = tf.slice(year_pair, [0,0], [-1,1])
-    max_year = tf.slice(year_pair, [0,1], [-1,1])
-    year = tf.floordiv(min_year + max_year, 2)
+    year_pairs = tf.unstack(year_pair)
+    [d1, d2, d3] = [tf.unstack(digit) for digit in year_log]
 
-    encoded_year = encodeYearAsDigits(year)
-    compare_years = [tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
-                     for x, y in zip(year_log, encoded_year)]
-    year_error = sum(compare_years)
+    errors = []
+    for i in range(len(year_pairs)):
+        example_error = exampleError(year_pairs[i], d1[i], d2[i], d3[i])
+        errors.append(example_error)
 
-    # year = tf.mod(year, 1000)
-    # year_label = tf.one_hot(year, 1000)
-    # year_error = tf.nn.softmax_cross_entropy_with_logits(logits=year_log,
-    #                                                      labels=year_label)
+    # min_year = tf.slice(year_pair, [0,0], [-1,1])
+    # max_year = tf.slice(year_pair, [0,1], [-1,1])
+    # year = tf.floordiv(min_year + max_year, 2)
     #
-    # year_prob = tf.nn.softmax(year_log)
-    return year_error
-    # return year_error + clusterError(year_prob)
+    # encoded_year = encodeYearAsDigits(year)
+    # compare_years = [tf.nn.softmax_cross_entropy_with_logits(logits=x, labels=y)
+    #                  for x, y in zip(year_log, encoded_year)]
+    # year_error = sum(compare_years)
+
+    return sum(errors)

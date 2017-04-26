@@ -82,7 +82,7 @@ def trainOp(pretrain=True):
         print('Each epoch runs for', num_batches, 'batches, each with', SWE_BATCH_SIZE, 'images.')
 
     year_log = runNetwork(batch_images, True)
-    error = sc.error(batch_years, year_log)
+    error = sc.batchError(batch_years, year_log)
     train_step = tf.train.AdamOptimizer(1e-4).minimize(error)
 
     return train_step, num_batches
@@ -230,7 +230,7 @@ with tf.Session(config=tf.ConfigProto(
 
     # evaluate()
 
-    accuracy.eval(feed_dict={eval_batch_size: 100})
+    accuracy.eval(feed_dict={eval_batch_size: 2})
 
     # writeReEncoded()
     # runTimeEstimate(sess)
