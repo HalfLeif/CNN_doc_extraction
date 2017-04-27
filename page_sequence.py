@@ -1,6 +1,5 @@
 import postprocess.books as books
 import postprocess.classifications as cs
-# import postprocess.jump_distribution as jp
 import postprocess.cond_jump_distribution as jd
 import postprocess.optimize_book as ob
 import util.dict_util as du
@@ -53,8 +52,8 @@ def optimizeBooks(collection):
     cs_file = os.path.join('data', 'classification', collection+'.csv')
     logits_dict = cs.buildLogitsDict(cs_file)
 
-    jump_file = os.path.join('data', 'jump_distribution.csv')
-    distr = jp.buildObj(1899 - 1690 + 1, laplace=0.5, filename=jump_file)
+    jump_file = os.path.join('data', 'cond_jumps.csv')
+    distr = jd.loadDistribution(jump_file)
 
     orig_diffs = []
     opt_diffs = []
@@ -80,23 +79,23 @@ def optimizeBooks(collection):
 
 if __name__ == '__main__':
     # printBooks('1647578')
-    # optimizeBooks('1647578')
+    optimizeBooks('1647578')
     # cs_file = os.path.join('data', 'classification', '1647578.csv')
     # ls = cs.buildLogitsDict(cs_file)
     # du.printDict(ls)
 
     # obj = jd.buildDistribution()
-    obj = jd.loadDistribution(os.path.join('data', 'cond_jumps.csv'))
+    # obj = jd.loadDistribution(os.path.join('data', 'cond_jumps.csv'))
     # obj.printSelf()
-    print('P(0)\t', obj.marginalProb(0))
-    print('P(1)\t', obj.marginalProb(1))
-
-    print('P(0|0)\t', obj.condProb(0, 0))
-    print('P(1|0)\t', obj.condProb(1, 0))
-
-    print('P(0|1)\t', obj.condProb(0, 1))
-    print('P(1|1)\t', obj.condProb(1, 1))
-
-    print('P(0|2)\t', obj.condProb(0, 2))
-    print('P(1|2)\t', obj.condProb(1, 2))
-    print('P(2|2)\t', obj.condProb(2, 2))
+    # print('P(0)\t', obj.marginalProb(0))
+    # print('P(1)\t', obj.marginalProb(1))
+    #
+    # print('P(0|0)\t', obj.condProb(0, 0))
+    # print('P(1|0)\t', obj.condProb(1, 0))
+    #
+    # print('P(0|1)\t', obj.condProb(0, 1))
+    # print('P(1|1)\t', obj.condProb(1, 1))
+    #
+    # print('P(0|2)\t', obj.condProb(0, 2))
+    # print('P(1|2)\t', obj.condProb(1, 2))
+    # print('P(2|2)\t', obj.condProb(2, 2))

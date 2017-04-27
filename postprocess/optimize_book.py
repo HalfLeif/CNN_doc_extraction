@@ -42,12 +42,22 @@ def labelProbabilities(digit_probabilities):
     return label_probabilities / np.sum(label_probabilities)
 
 
-def maximizeStep(max_probabilities_arr, jump_distribution, to_index):
+def maximizeStep(prev_max_arr, prev_back_arr,
+                 jump_distribution, to_index):
+    ''' Chooses the most likely predecessor to this node.'''
     best_index = 0
     highest_prob = -1
     for from_index in range(num_labels):
-        jump_prob = jump_distribution.probability(to_index - from_index)
-        prob = jump_prob * max_probabilities_arr[from_index]
+        jump = to_index - from_index
+        before_index = prev_back_arr[from_index]
+        if before_index < 0:
+            jump_prob = jump_distribution.marginalProb(jump)
+        else:
+            prev_jump = from_index - before_index
+            jump_prob = jump_distribution.condProb(jump, prev_jump)
+
+        jump_prob = jump_distribution.marginalProb(to_index - from_index)
+        prob = jump_prob * prev_max_arr[from_index]
         if prob > highest_prob:
             highest_prob = prob
             best_index = from_index
@@ -76,21 +86,23 @@ def optimizeBook(page_seq, jump_distribution, logits_dict):
     # Note: it would be interesting to compare the probability
     # of the correct sequence vs the highest probability sequence.
 
+    jump_distribution.setSmoothing(0.5, num_labels)
+
     original_predictions = []
     backtrack_matrix = []
     # max_probabilities_matrix = []
 
     for image_id, label in page_seq:
         if not image_id in logits_dict:
-            # TODO handle better?
+            # Skip pages without labels.
+            # If want to reset conditional probabilities,
+            # can set `prev_back_arr` to an array of -1.
             continue
 
         logits = logits_dict[image_id]
         digit_probabilities = expandLogits(logits)
         label_probabilities = labelProbabilities(digit_probabilities)
         original_predictions.append(np.argmax(label_probabilities))
-        # TODO do I need to normalize probabilities?
-        # argmax should work correct anyway?
 
         backtrack_arr = np.zeros(num_labels, dtype=np.int32)
 
@@ -98,16 +110,19 @@ def optimizeBook(page_seq, jump_distribution, logits_dict):
             max_probabilities_arr = np.zeros(num_labels)
 
             for to_index in range(num_labels):
-                prob, from_index = maximizeStep(prev_max_arr, jump_distribution, to_index)
+                prob, from_index = maximizeStep(prev_max_arr, prev_back_arr,
+                                                jump_distribution, to_index)
                 max_probabilities_arr[to_index] = prob
                 backtrack_arr[to_index] = from_index
         else:
             # First iteration!
+            backtrack_arr = backtrack_arr - 1
             max_probabilities_arr = np.ones(num_labels)
 
         max_probabilities_arr = max_probabilities_arr * label_probabilities
 
         prev_max_arr = max_probabilities_arr
+        prev_back_arr = backtrack_arr
         backtrack_matrix.append(backtrack_arr)
         # max_probabilities_matrix.append(max_probabilities_arr)
 
