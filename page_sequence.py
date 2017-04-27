@@ -5,6 +5,7 @@ import postprocess.optimize_book as ob
 import util.dict_util as du
 
 import os
+import statistics as st
 
 
 def printBooks(collection):
@@ -21,6 +22,25 @@ def printBooks(collection):
             if image_id in predictions:
                 print('\t',image_id, predictions[image_id], year_seq)
 
+def yearDiff(year, year_list):
+    low = min(year_list)
+    high = max(year_list)
+    if year < low:
+        return low - year
+    elif year > high:
+        return year - high
+    else:
+        return 0
+
+def listAcc(diffs):
+    return float(diffs.count(0)) / len(diffs)
+
+def listMedian(diffs):
+    return st.median(diffs)
+
+def printStats(diffs):
+    print('Acc', listAcc(diffs))
+    print('Med', listMedian(diffs))
 
 def optimizeBooks(collection):
     page_index_dir = os.path.join('data', 'labels_index', 'page_index')
@@ -33,6 +53,9 @@ def optimizeBooks(collection):
     jump_file = os.path.join('data', 'jump_distribution.csv')
     distr = jp.buildObj(1899 - 1690 + 1, laplace=0.5, filename=jump_file)
 
+    orig_diffs = []
+    opt_diffs = []
+
     for book_id, page_seq in organized:
         sequence, original = ob.optimizeBook(page_seq, distr, logits_dict)
         i = 0
@@ -40,7 +63,15 @@ def optimizeBooks(collection):
         for image_id, year_labels in page_seq:
             if image_id in logits_dict:
                 print('\t',image_id, original[i], sequence[i], year_labels)
+                orig_diffs.append(yearDiff(original[i], year_labels))
+                opt_diffs.append(yearDiff(sequence[i], year_labels))
                 i += 1
+
+    print('# Original predictions')
+    printStats(orig_diffs)
+
+    print('# Post-processed')
+    printStats(opt_diffs)
 
 if __name__ == '__main__':
     # printBooks('1647578')
