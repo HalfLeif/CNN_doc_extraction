@@ -20,7 +20,9 @@ def printBooks(collection):
         print(book_id, len(page_seq))
         for image_id, year_seq in page_seq:
             if image_id in predictions:
-                print('\t',image_id, predictions[image_id], year_seq)
+                print('\t', image_id, predictions[image_id], year_seq)
+            else:
+                print('\t', image_id, '____', year_seq)
 
 def yearDiff(year, year_list):
     low = min(year_list)
@@ -62,10 +64,12 @@ def optimizeBooks(collection):
         print(book_id, len(page_seq))
         for image_id, year_labels in page_seq:
             if image_id in logits_dict:
-                print('\t',image_id, original[i], sequence[i], year_labels)
+                print('\t', image_id, original[i], sequence[i], year_labels)
                 orig_diffs.append(yearDiff(original[i], year_labels))
                 opt_diffs.append(yearDiff(sequence[i], year_labels))
                 i += 1
+            else:
+                print('\t', image_id, '____', '____', year_labels)
 
     print('# Original predictions')
     printStats(orig_diffs)
