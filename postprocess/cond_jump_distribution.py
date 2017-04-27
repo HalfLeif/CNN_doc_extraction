@@ -57,10 +57,16 @@ class JumpsAccumulator:
 
         self.prev_jump = jump_list
 
+threshold = 0.3
 
 class ConditionalJumpDistribution:
     def __init__(self, counts):
-        self.counts = counts
+        self.counts = {}
+        for key in counts:
+            if counts[key] > threshold:
+                # Save memory by ignoring very small counts.
+                # Reduces the number of cache misses.
+                self.counts[key] = counts[key]
         self.setSmoothing(0.0, 0.0)
 
     def setSmoothing(self, laplace, n_output_values):

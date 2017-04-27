@@ -52,7 +52,7 @@ def optimizeBooks(collection):
     cs_file = os.path.join('data', 'classification', collection+'.csv')
     logits_dict = cs.buildLogitsDict(cs_file)
 
-    jump_file = os.path.join('data', 'cond_jumps.csv')
+    jump_file = os.path.join('data', 'cond_jumps_thresh.csv')
     distr = jd.loadDistribution(jump_file)
 
     orig_diffs = []
