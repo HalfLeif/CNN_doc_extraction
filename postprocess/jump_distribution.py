@@ -14,6 +14,12 @@ class JumpDistribution:
     def probability(self, diff):
         ''' Returns the unnormalized probability of doing a jump with this
             year difference between two consecutive pages.
+
+            It is unnormalized because part of the distribution is truncated to
+            the valid range. However, because the distribution is very sharp
+            around 0, the effect should be negligible except for the very edges
+            of the valid range.
+
             Uses laplace smoothing for the probabilities.
         '''
         count = self.distribution.get(diff, 0)

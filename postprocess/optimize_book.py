@@ -1,7 +1,7 @@
 
 import numpy as np
 
-min_label = 1650
+min_label = 1600
 max_label = 1899
 num_labels = max_label - min_label + 1
 
@@ -29,7 +29,7 @@ def yearToDigits(year):
 
 
 def labelProbabilities(digit_probabilities):
-    ''' Returns unnormalized label probabilities for min_label to max_label
+    ''' Returns normalized label probabilities for min_label to max_label
         as a numpy array.'''
     label_probabilities = np.zeros(num_labels)
     for index in range(num_labels):
@@ -39,7 +39,7 @@ def labelProbabilities(digit_probabilities):
             digit = label_digits[digit_pos]
             product *= digit_probabilities[digit_pos][digit]
         label_probabilities[index] = product
-    return label_probabilities
+    return label_probabilities / np.sum(label_probabilities)
 
 
 def maximizeStep(max_probabilities_arr, jump_distribution, to_index):
@@ -73,6 +73,9 @@ def optimizeBook(page_seq, jump_distribution, logits_dict):
         jump_distribution: dictionary of jump distance to probability
         logits: dictionary of image_id to three logits, one for each number
     '''
+    # Note: it would be interesting to compare the probability
+    # of the correct sequence vs the highest probability sequence.
+
     original_predictions = []
     backtrack_matrix = []
     # max_probabilities_matrix = []
