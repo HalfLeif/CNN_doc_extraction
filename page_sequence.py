@@ -85,7 +85,8 @@ if __name__ == '__main__':
     # ls = cs.buildLogitsDict(cs_file)
     # du.printDict(ls)
 
-    obj = jd.buildDistribution()
+    # obj = jd.buildDistribution()
+    obj = jd.loadDistribution(os.path.join('data', 'cond.temp'))
     # obj.printSelf()
     print('P(0)\t', obj.marginalProb(0))
     print('P(1)\t', obj.marginalProb(1))

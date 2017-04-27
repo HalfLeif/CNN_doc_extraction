@@ -59,8 +59,8 @@ class JumpsAccumulator:
 
 
 class ConditionalJumpDistribution:
-    def __init__(self, accumulator):
-        self.counts = accumulator.counts
+    def __init__(self, counts):
+        self.counts = counts
         self.setSmoothing(0.0, 0.0)
 
     def setSmoothing(self, laplace, n_output_values):
@@ -91,7 +91,7 @@ class ConditionalJumpDistribution:
 
     def printSelf(self):
         for key in self.counts.keys():
-            print(key, ':', self.counts[key])
+            print(repr(key), ':', self.counts[key])
 
 
 def addCollection(filename, distribution):
@@ -121,4 +121,18 @@ def buildDistribution():
         # TODO REMVOE
         break
 
-    return ConditionalJumpDistribution(accumulator)
+    return ConditionalJumpDistribution(accumulator.counts)
+
+def loadDistribution(filename):
+    counts = {}
+    for line in open(filename, 'r'):
+        if line.startswith('#'):
+            continue
+        [key_str, value_str] = line.split(':')
+        try:
+            key = ast.literal_eval(key_str)
+        except:
+            print(key_str)
+            raise
+        counts[key] = float(value_str)
+    return ConditionalJumpDistribution(counts)
