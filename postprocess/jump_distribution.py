@@ -5,6 +5,8 @@ import ast
 import os
 
 class JumpDistribution:
+    ''' Deprecated in favor of ConditionalJumpDistribution.
+    '''
     def __init__(self, distribution, denominator, year_range, laplace=0.5):
         self.distribution = distribution
         self.denominator = denominator

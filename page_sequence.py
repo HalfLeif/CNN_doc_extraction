@@ -1,6 +1,7 @@
 import postprocess.books as books
 import postprocess.classifications as cs
-import postprocess.jump_distribution as jp
+# import postprocess.jump_distribution as jp
+import postprocess.cond_jump_distribution as jd
 import postprocess.optimize_book as ob
 import util.dict_util as du
 
@@ -79,7 +80,22 @@ def optimizeBooks(collection):
 
 if __name__ == '__main__':
     # printBooks('1647578')
-    optimizeBooks('1647578')
+    # optimizeBooks('1647578')
     # cs_file = os.path.join('data', 'classification', '1647578.csv')
     # ls = cs.buildLogitsDict(cs_file)
     # du.printDict(ls)
+
+    obj = jd.buildDistribution()
+    # obj.printSelf()
+    print('P(0)\t', obj.marginalProb(0))
+    print('P(1)\t', obj.marginalProb(1))
+
+    print('P(0|0)\t', obj.condProb(0, 0))
+    print('P(1|0)\t', obj.condProb(1, 0))
+
+    print('P(0|1)\t', obj.condProb(0, 1))
+    print('P(1|1)\t', obj.condProb(1, 1))
+
+    print('P(0|2)\t', obj.condProb(0, 2))
+    print('P(1|2)\t', obj.condProb(1, 2))
+    print('P(2|2)\t', obj.condProb(2, 2))
