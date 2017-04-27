@@ -86,7 +86,7 @@ if __name__ == '__main__':
     # du.printDict(ls)
 
     # obj = jd.buildDistribution()
-    obj = jd.loadDistribution(os.path.join('data', 'cond.temp'))
+    obj = jd.loadDistribution(os.path.join('data', 'cond_jumps.csv'))
     # obj.printSelf()
     print('P(0)\t', obj.marginalProb(0))
     print('P(1)\t', obj.marginalProb(1))

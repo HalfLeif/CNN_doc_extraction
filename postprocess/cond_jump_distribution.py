@@ -118,9 +118,6 @@ def buildDistribution():
         path = os.path.join(page_index_dir, filename+'.csv')
         addCollection(path, accumulator)
 
-        # TODO REMVOE
-        break
-
     return ConditionalJumpDistribution(accumulator.counts)
 
 def loadDistribution(filename):
