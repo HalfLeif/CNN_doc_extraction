@@ -5,7 +5,8 @@ import ast
 import os
 
 class JumpDistribution:
-    ''' Deprecated in favor of ConditionalJumpDistribution.
+    ''' More efficient than ConditionalJumpDistribution.
+        However, does not support conditional probabilities.
     '''
     def __init__(self, distribution, denominator):
         self.distribution = distribution

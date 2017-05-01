@@ -60,6 +60,13 @@ class JumpsAccumulator:
 threshold = 0.3
 
 class ConditionalJumpDistribution:
+    ''' Similar to JumpDistribution with the extension that it also
+        handles probabilities conditioned on the previous jump size.
+
+        However, decreases accuracy in practice due to that with our
+        statistics, P(0|0) > P(0). So the model is even more likely to get
+        stuck at some year for the entire book.
+    '''
     def __init__(self, counts):
         self.counts = {}
         for key in counts:
