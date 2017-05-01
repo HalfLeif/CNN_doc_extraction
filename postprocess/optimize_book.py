@@ -82,6 +82,9 @@ def backtrack(backtrack_matrix, last_label):
 def toYear(indices):
     return [min_label + index for index in indices]
 
+def normalize(arr):
+    return arr / np.sum(arr)
+
 def optimizeBook(page_seq, jump_distribution, logits_dict):
     ''' Calculates maximum probability path using the Viterbi algorithm
         over this sequence of pages.
@@ -96,7 +99,6 @@ def optimizeBook(page_seq, jump_distribution, logits_dict):
 
     original_predictions = []
     backtrack_matrix = []
-    # max_probabilities_matrix = []
 
     for image_id, label in page_seq:
         if not image_id in logits_dict:
@@ -126,11 +128,11 @@ def optimizeBook(page_seq, jump_distribution, logits_dict):
             max_probabilities_arr = np.ones(num_labels)
 
         max_probabilities_arr = max_probabilities_arr * label_probabilities
+        max_probabilities_arr = normalize(max_probabilities_arr)
 
         prev_max_arr = max_probabilities_arr
         prev_back_arr = backtrack_arr
         backtrack_matrix.append(backtrack_arr)
-        # max_probabilities_matrix.append(max_probabilities_arr)
 
     last_label = np.argmax(max_probabilities_arr)
     sequence = backtrack(backtrack_matrix, last_label)
