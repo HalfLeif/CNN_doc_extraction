@@ -49,14 +49,20 @@ def maximizeStep(prev_max_arr, prev_back_arr,
     highest_prob = -1
     for from_index in range(num_labels):
         jump = to_index - from_index
-        before_index = prev_back_arr[from_index]
-        if before_index < 0:
-            jump_prob = jump_distribution.marginalProb(jump)
-        else:
-            prev_jump = from_index - before_index
-            jump_prob = jump_distribution.condProb(jump, prev_jump)
 
-        jump_prob = jump_distribution.marginalProb(to_index - from_index)
+        # With conditional jump distribution:
+        # before_index = prev_back_arr[from_index]
+        # if before_index < 0:
+        #     jump_prob = jump_distribution.marginalProb(jump)
+        # else:
+        #     prev_jump = from_index - before_index
+        #     jump_prob = jump_distribution.condProb(jump, prev_jump)
+        # jump_prob = jump_distribution.marginalProb(to_index - from_index)
+
+
+        # Unconditional jump distribution:
+        jump_prob = jump_distribution.probability(jump)
+
         prob = jump_prob * prev_max_arr[from_index]
         if prob > highest_prob:
             highest_prob = prob

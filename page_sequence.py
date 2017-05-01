@@ -1,6 +1,7 @@
 import postprocess.books as books
 import postprocess.classifications as cs
-import postprocess.cond_jump_distribution as jd
+import postprocess.jump_distribution as jd
+import postprocess.cond_jump_distribution as cjd
 import postprocess.optimize_book as ob
 import util.dict_util as du
 
@@ -52,7 +53,12 @@ def optimizeBooks(collection):
     cs_file = os.path.join('data', 'classification', collection+'.csv')
     logits_dict = cs.buildLogitsDict(cs_file)
 
-    jump_file = os.path.join('data', 'cond_jumps_thresh.csv')
+    # Conditional jump distribution:
+    # jump_file = os.path.join('data', 'cond_jumps_thresh.csv')
+    # distr = cjd.loadDistribution(jump_file)
+
+    # Unconditional jump distribution:
+    jump_file = os.path.join('data', 'jump_distribution.csv')
     distr = jd.loadDistribution(jump_file)
 
     orig_diffs = []

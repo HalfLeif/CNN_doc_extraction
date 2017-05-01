@@ -7,11 +7,18 @@ import os
 class JumpDistribution:
     ''' Deprecated in favor of ConditionalJumpDistribution.
     '''
-    def __init__(self, distribution, denominator, year_range, laplace=0.5):
+    def __init__(self, distribution, denominator):
         self.distribution = distribution
         self.denominator = denominator
-        self.year_range = year_range
+        self.year_range = 0
+        self.laplace = 0.0
+
+    def setSmoothing(self, laplace, n_output_values):
+        if laplace and not n_output_values:
+            raise ValueError('Error! If uses Laplace smoothing, then must specify how many valid output values there are.')
+
         self.laplace = laplace
+        self.year_range = n_output_values
 
     def probability(self, diff):
         ''' Returns the unnormalized probability of doing a jump with this
@@ -71,7 +78,8 @@ def buildDistribution():
         path = os.path.join(page_index_dir, filename+'.csv')
         distribution, denominator = addCollection(path, distribution, denominator)
 
-    return distribution, denominator
+    return JumpDistribution(distribution, denominator)
+
 
 def loadDistribution(filename):
     denominator = None
@@ -84,11 +92,4 @@ def loadDistribution(filename):
         else:
             [diff, count] = line.split(' ')
             distribution[int(diff)] = float(count)
-    return distribution, denominator
-
-def buildObj(year_range, laplace=0.5, filename=None):
-    if filename:
-        distribution, denominator = loadDistribution(filename)
-    else:
-        distribution, denominator = buildDistribution()
-    return JumpDistribution(distribution, denominator, year_range, laplace)
+    return JumpDistribution(distribution, denominator)
