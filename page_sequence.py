@@ -38,12 +38,10 @@ def yearDiff(year, year_list):
 def listAcc(diffs):
     return float(diffs.count(0)) / len(diffs)
 
-def listMedian(diffs):
-    return st.median(diffs)
-
 def printStats(diffs):
-    print('Acc', listAcc(diffs))
-    print('Med', listMedian(diffs))
+    print('Acc ', listAcc(diffs))
+    print('Med ', st.median(diffs))
+    print('Mean', st.mean(diffs))
 
 def optimizeBooks(collection):
     page_index_dir = os.path.join('data', 'labels_index', 'page_index')
