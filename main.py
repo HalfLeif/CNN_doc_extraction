@@ -141,11 +141,12 @@ def saveModel(saver, model_name, step):
     save_name = os.path.join(model_dir, model_name)
     save_path = saver.save(sess, save_name, global_step=step, write_meta_graph=False)
 
+train_step, n_train_batches = trainOp(pretrain_mnist)
+
 def train(model_name):
-    train_step, num_batches = trainOp(pretrain_mnist)
     saver = tf.train.Saver(max_to_keep=3)
 
-    for i in range(num_batches):
+    for i in range(n_train_batches):
         if (i%100 == 0):
             print('BATCH', i)
 
@@ -178,7 +179,6 @@ def runTimeEstimate(sess):
     '''
     run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
     run_metadata = tf.RunMetadata()
-    train_step, _ = trainOp(pretrain_mnist)
 
     sess.run(train_step, options=run_options, run_metadata=run_metadata)
 
@@ -188,11 +188,12 @@ def runTimeEstimate(sess):
         f.write(ctf)
     print('WROTE TIMELINE')
 
-def test(total_test=500, eval_size=SWE_BATCH_SIZE):
-    accuracy = testOp(pretrain_mnist, eval_size=eval_size)
+eval_batch_size=SWE_BATCH_SIZE
+accuracy = testOp(pretrain_mnist, eval_size=eval_batch_size)
 
+def test(total_test=500):
     accs = 0
-    iterations = total_test/eval_size
+    iterations = total_test/eval_batch_size
     for ai in range(iterations):
         if ai%10 == 0 and ai > 0:
             print('Tested ', ai*eval_size, 'acc: ', accs/ai)
@@ -207,27 +208,34 @@ def classifyOp(collection, batch_size=SWE_BATCH_SIZE):
     year_log = runNetwork(batch_images, False)
     return year_log, batch_paths, num_batches
 
-def classify(sess, collection):
-    year_log, batch_paths, num_batches = classifyOp(collection)
-    print('YEAR_LOG', year_log[0].get_shape())
+cl_collection = '1647578'
+cl_year_log, cl_batch_paths, cl_num_batches = classifyOp(cl_collection)
 
-    for i in range(num_batches):
-        readout_logits, readout_paths = sess.run([year_log, batch_paths])
+def classify(sess):
+    for i in range(cl_num_batches):
+        readout_logits, readout_paths = sess.run([cl_year_log, cl_batch_paths])
         for j in range(len(readout_paths)):
             digit1 = readout_logits[0][j]
             digit2 = readout_logits[1][j]
             digit3 = readout_logits[3][j]
             yield readout_paths[j], digit1, digit2, digit3
 
-def saveClassifications(collection, classifications):
-    directory = os.path.join('data', 'classification')
-    os.makedirs(directory)
+def formatArray(arr):
+    return np.array2string(arr, separator=', ', precision=12,
+                           max_line_width=float('inf'))
 
-    filename = os.path.join(directory, collection+'.csv')
+def saveClassifications(classifications):
+    directory = os.path.join('data', 'classification')
+    # TODO: only make dir if does not exist
+    # os.makedirs(directory)
+
+    filename = os.path.join(directory, cl_collection+'.csv')
     with open(filename, 'w+') as f:
-        for classification in classifications:
-        # for img_path, digit1, digit2, digit3 in classifications:
-            line = ' | '.join(classification)
+        for img_path, digit1, digit2, digit3 in classifications:
+            line = ' | '.join([img_path.decode('utf-8'),
+                               formatArray(digit1),
+                               formatArray(digit2),
+                               formatArray(digit3)])
             f.write(line)
     print('Wrote file', filename)
 
@@ -254,8 +262,8 @@ with tf.Session(config=tf.ConfigProto(
     #     model_name = 'Single_digit_PRE_' + str(epoch)
     #     train(model_name)
 
-    classifications = classify(sess, '1647578')
-    saveClassifications('1647578', classifications)
+    classifications = classify(sess)
+    saveClassifications(classifications)
     time_end = time.process_time()
 
     # test()
