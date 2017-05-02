@@ -12,6 +12,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.client import timeline
 
+import math
 import os
 import time
 
@@ -193,15 +194,15 @@ accuracy = testOp(pretrain_mnist, eval_size=eval_batch_size)
 
 def test(total_test=500):
     accs = 0
-    iterations = total_test/eval_batch_size
+    iterations = math.ceil(total_test/eval_batch_size)
     for ai in range(iterations):
         if ai%10 == 0 and ai > 0:
-            print('Tested ', ai*eval_size, 'acc: ', accs/ai)
+            print('Tested ', ai*eval_batch_size, 'acc: ', accs/ai)
         acc = accuracy.eval()
         accs = accs + acc
 
     ai = ai + 1
-    print('Tested ', ai*eval_size, 'acc: ', accs/ai)
+    print('Tested ', ai*eval_batch_size, 'acc: ', accs/ai)
 
 def classifyOp(collection, batch_size=SWE_BATCH_SIZE):
     batch_images, _, batch_paths, num_batches = swe.classificationBatch(batch_size, collection)
