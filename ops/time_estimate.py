@@ -24,14 +24,13 @@ def lazyPrintNumParams():
     return lambda _: print('# PARAMETERS:', numParams())
 
 
-def runTimeEstimate(sess):
+def runTimeEstimate(sess, train_step):
     ''' Creates timeline-file for debugging expensive operations.
         Open file with chrome://tracing.
     '''
     run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
     run_metadata = tf.RunMetadata()
 
-    train_step, _ = ops.train.trainOp(True)
     sess.run(train_step, options=run_options, run_metadata=run_metadata)
 
     tl = timeline.Timeline(run_metadata.step_stats)
@@ -43,4 +42,5 @@ def runTimeEstimate(sess):
     print('Wrote timeline to', filename)
 
 def lazyTimeEstimate():
-    return lambda sess: runTimeEstimate(sess)
+    train_step, _ = ops.train.trainOp(True)
+    return lambda sess: runTimeEstimate(sess, train_step)
