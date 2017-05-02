@@ -27,7 +27,8 @@ def predict(year_log):
     return tf.cast(year, tf.int32)
 
 def certainty(year_prob, years):
-    ''' Returns probability of the correct label.
+    ''' DEPRECATED.
+        Returns probability of the correct label.
         Note: does not return the highest probability.'''
     years = tf.squeeze(years)
     indices = tf.mod(years, 1000)

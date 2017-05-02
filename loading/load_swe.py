@@ -1,10 +1,13 @@
 
 import loading.load_image as img
 
+import gflags
 import tensorflow as tf
 
 import ast
 import os
+
+gflags.DEFINE_integer('SWE_BATCH_SIZE', 10, 'Number of training examples for MNIST per batch.', lower_bound=2)
 
 # TODO: replace with FLAGS
 records_dir = "/home/leif/sweden/records"
@@ -15,7 +18,8 @@ labels_dir = "/home/leif/labels"
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
 
-def makeQueue(batch_size, all_jpgs, all_years, shuffle=True):
+def makeQueue(all_jpgs, all_years, shuffle=True):
+    batch_size = gflags.FLAGS.SWE_BATCH_SIZE
     num_batches = int(len(all_years)/batch_size)
 
     jpgs = tf.constant(all_jpgs, tf.string)
@@ -46,16 +50,16 @@ def sweBatch(batch_size, train_mode):
     else:
         all_jpgs, all_years = loadTestSet()
 
-    return makeQueue(batch_size, all_jpgs, all_years, shuffle=True)
+    return makeQueue(all_jpgs, all_years, shuffle=True)
 
 
-def classificationBatch(batch_size, collection):
+def classificationBatch(collection):
     train_imgs, train_years = loadCollection(collection, train=True)
     test_imgs, test_years = loadCollection(collection, train=False)
     all_imgs = train_imgs + test_imgs
     all_years = train_years + test_years
 
-    return makeQueue(batch_size, all_imgs, all_years, shuffle=False)
+    return makeQueue(all_imgs, all_years, shuffle=False)
 
 def loadTrainingSet():
     imgs = []

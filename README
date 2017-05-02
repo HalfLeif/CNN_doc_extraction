@@ -1,0 +1,9 @@
+TODO: write project description and point to thesis.
+TODO: describe modules and how to run each part.
+TODO: describe flags?
+
+# Pip dependencies:
+
+- numpy
+- tensorflow
+- python-gflags

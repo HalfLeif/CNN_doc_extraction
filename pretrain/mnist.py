@@ -1,9 +1,11 @@
+import img_debug as debug
+
+import gflags
 import numpy as np
 import tensorflow as tf
 import tensorflow.examples.tutorials.mnist.input_data as mnist_data
 
-import img_debug as debug
-
+gflags.DEFINE_integer('MNIST_BATCH_SIZE', 50, 'Number of training examples for MNIST per batch.', lower_bound=2)
 
 def mnistData(train_mode):
     mnist = mnist_data.read_data_sets('MNIST_data', one_hot=False)
@@ -84,6 +86,8 @@ def mnistSample(train_mode):
         MNIST images uses 1.0 for ink and 0.0 for background.
     '''
     imgs, labels = mnistData(train_mode)
+    num_batches = int(len(labels)/gflags.FLAGS.MNIST_BATCH_SIZE)
+
     shuffled = tf.train.slice_input_producer([imgs, labels], shuffle=True, seed=None)
     three_images, three_labels = tf.train.batch(shuffled, batch_size=3)
 
@@ -106,10 +110,10 @@ def mnistSample(train_mode):
 
     # year = tf.Print(year, ['WRITE IMG', debug.debugImage(wide_image, year)])
 
-    return wide_image, year
+    return wide_image, year, num_batches
 
-def mnistBatch(batch_size, train_mode):
-    wide_image, year = mnistSample(train_mode)
+def mnistBatch(train_mode):
+    batch_size = gflags.FLAGS.MNIST_BATCH_SIZE
+    wide_image, year, num_batches = mnistSample(train_mode)
     year = tf.stack([year, year])
-    print('DEBUG_EYAR', year.get_shape())
-    return tf.train.batch([wide_image, year], batch_size=batch_size)
+    return tf.train.batch([wide_image, year], batch_size=batch_size), num_batches
