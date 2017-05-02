@@ -7,13 +7,15 @@ import tensorflow as tf
 import ast
 import os
 
+
 gflags.DEFINE_integer('SWE_BATCH_SIZE', 10, 'Number of training examples for MNIST per batch.', lower_bound=2)
 
-# TODO: replace with FLAGS
-records_dir = "/home/leif/sweden/records"
-labels_dir = "/home/leif/labels"
-# labels_dir = "/Users/HalfLeif/labels"
-# records_dir = "/Users/HalfLeif/sweden/records"
+gflags.DEFINE_string('records_dir', '/home/leif/sweden/records',
+        'Directory containing the SWE image collections.')
+
+gflags.DEFINE_string('labels_dir', '/home/leif/labels',
+        'Directory containing the SWE label csvs.')
+
 
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
@@ -43,7 +45,7 @@ def makeQueue(all_jpgs, all_years, shuffle=True):
     print('Swe queue created')
     return batch_images, batch_years, batch_paths, num_batches
 
-def sweBatch(batch_size, train_mode):
+def sweBatch(train_mode):
     print('Load transcriptions')
     if train_mode:
         all_jpgs, all_years = loadTrainingSet()
@@ -96,7 +98,9 @@ def loadCollection(collection_name, train=True):
         subdir = 'train'
     else:
         subdir = 'test'
-    labels_file = os.path.join(labels_dir, subdir, collection_name + '.csv')
+
+    labels_file = os.path.join(gflags.FLAGS.labels_dir,
+            subdir, collection_name + '.csv')
 
     if not os.path.exists(labels_file):
         print('Could not find file with labels: ', labels_file)
@@ -115,7 +119,8 @@ def loadCollection(collection_name, train=True):
             if not year_list:
                 continue
 
-            image_path = os.path.join(records_dir, collection_name, 'Images', image_id + '.jpg')
+            image_path = os.path.join(gflags.FLAGS.records_dir,
+                    collection_name, 'Images', image_id + '.jpg')
             if os.path.exists(image_path):
                 image_files.append(image_path)
                 pair = (min(year_list), max(year_list))
