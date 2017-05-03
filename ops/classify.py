@@ -20,7 +20,7 @@ def classify(sess, year_log, batch_paths, num_batches):
         for j in range(len(readout_paths)):
             digit1 = readout_logits[0][j]
             digit2 = readout_logits[1][j]
-            digit3 = readout_logits[3][j]
+            digit3 = readout_logits[2][j]
             yield readout_paths[j], digit1, digit2, digit3
 
 def formatArray(arr):
