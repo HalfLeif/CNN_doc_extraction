@@ -39,6 +39,7 @@ def saveClassifications(output_name, classifications):
                                formatArray(digit2),
                                formatArray(digit3)])
             f.write(line)
+            f.write('\n')
     print('Wrote file', filename)
 
 
