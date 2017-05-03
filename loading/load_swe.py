@@ -45,51 +45,48 @@ def makeQueue(all_jpgs, all_years, shuffle=True):
     print('Swe queue created')
     return batch_images, batch_years, batch_paths, num_batches
 
-def sweBatch(train_mode):
+def sweBatch(dataset, shuffle=True):
     print('Load transcriptions')
-    if train_mode:
+    if dataset == 'train':
         all_jpgs, all_years = loadTrainingSet()
-    else:
+    elif dataset == 'test':
         all_jpgs, all_years = loadTestSet()
+    elif dataset == 'eval':
+        all_jpgs, all_years = loadEvalSet()
+    else:
+        # List of collections, load both test and train data for each.
+        all_jpgs, all_years = loadTrainTest(dataset)
 
-    return makeQueue(all_jpgs, all_years, shuffle=True)
+    return makeQueue(all_jpgs, all_years, shuffle=shuffle)
 
-
-def classificationBatch(collection):
-    train_imgs, train_years = loadCollection(collection, train=True)
-    test_imgs, test_years = loadCollection(collection, train=False)
-    all_imgs = train_imgs + test_imgs
-    all_years = train_years + test_years
-
-    return makeQueue(all_imgs, all_years, shuffle=False)
 
 def loadTrainingSet():
-    imgs = []
-    years = []
-    for collection in swe_train_collections:
-        coll_imgs, coll_years = loadCollection(collection, train=True)
-        imgs += coll_imgs
-        years += coll_years
-    return imgs, years
+    return loadCollections(swe_train_collections, train=True)
+
 
 def loadTestSet():
+    return loadCollections(swe_train_collections, train=False)
+
+
+def loadEvalSet():
+    return loadTrainTest(swe_eval_only)
+
+
+def loadTrainTest(collection_names):
+    tr_jpgs, tr_years = loadCollections(collection_names, train=True)
+    ts_jpgs, ts_years = loadCollections(collection_names, train=False)
+    return tr_jpgs + ts_jpgs, tr_years + ts_years
+
+
+def loadCollections(collection_names, train):
     imgs = []
     years = []
-    for collection in swe_train_collections:
-        coll_imgs, coll_years = loadCollection(collection, train=False)
+    for collection in collection_names:
+        coll_imgs, coll_years = loadCollection(collection, train=train)
         imgs += coll_imgs
         years += coll_years
     return imgs, years
 
-def loadEvalSet():
-    imgs = []
-    years = []
-    for collection in swe_eval_only:
-        train_imgs, train_years = loadCollection(collection, train=True)
-        test_imgs, test_years = loadCollection(collection, train=False)
-        imgs += train_imgs + test_imgs
-        years += train_years + test_years
-    return imgs, years
 
 def loadCollection(collection_name, train=True):
     image_files = []

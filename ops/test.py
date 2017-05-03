@@ -31,7 +31,7 @@ def testOp(pretrain=True, debug=True):
     if pretrain:
         (batch_images, batch_years), num_batches = mnist.mnistBatch(False)
     else:
-        batch_images, batch_years, _, num_batches = swe.sweBatch(False)
+        batch_images, batch_years, _, num_batches = swe.sweBatch('test')
 
     year_log = run.runNetwork(batch_images, False)
     year_prob = tf.nn.softmax(year_log)

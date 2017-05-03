@@ -9,8 +9,8 @@ import tensorflow as tf
 import os
 
 
-def classifyOp(collection):
-    batch_images, _, batch_paths, num_batches = swe.classificationBatch(collection)
+def classifyOp(dataset):
+    batch_images, _, batch_paths, num_batches = swe.sweBatch(dataset)
     year_log = run.runNetwork(batch_images, False)
     return year_log, batch_paths, num_batches
 
@@ -28,12 +28,12 @@ def formatArray(arr):
     return np.array2string(arr, separator=', ', precision=12,
                            max_line_width=float('inf'))
 
-def saveClassifications(collection, classifications):
+def saveClassifications(output_name, classifications):
     directory = os.path.join('data', 'classification')
     # TODO: only make dir if does not exist
     # os.makedirs(directory)
 
-    filename = os.path.join(directory, collection+'.csv')
+    filename = os.path.join(directory, output_name+'.csv')
     with open(filename, 'w+') as f:
         for img_path, digit1, digit2, digit3 in classifications:
             line = ' | '.join([img_path.decode('utf-8'),
@@ -44,7 +44,11 @@ def saveClassifications(collection, classifications):
     print('Wrote file', filename)
 
 
-def lazyClassify(collection):
-    year_log, batch_paths, num_batches = classifyOp(collection)
+def lazyClassify(dataset, output_name=None):
+    year_log, batch_paths, num_batches = classifyOp(dataset)
+
+    if not output_name:
+        output_name = str(dataset)
+
     return lambda sess: saveClassifications(
-            collection, classify(sess, year_log, batch_paths, num_batches))
+            output_name, classify(sess, year_log, batch_paths, num_batches))

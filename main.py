@@ -41,18 +41,20 @@ def main(argv):
     gflags.FLAGS(argv)
 
     # Whether to train on 4-digit MNIST or not.
-    pretrain_mnist = True
+    pretrain_mnist = False
 
     # When each lambda is created, it adds the necessary nodes to the current
     # computation graph.
     # When a lambda is executed, it runs the relevant computation nodes.
+    model_name = 'Swe_DEP3_ind_digits7-2299'
     lambdas = [
         ops.time_estimate.lazyPrintNumParams(),
-        ops.model_io.lazyLoadModel('DEP_pad_random_5-1099'),
+        ops.model_io.lazyLoadModel(model_name),
         ops.time.lazyStart(),
         # ops.train.lazyTrain('TEMP', pretrain_mnist),
-        ops.test.lazyTest(pretrain_mnist, num_batches=1, debug=True),
-        # ops.classify.lazyClassify('1647578'),
+        # ops.test.lazyTest(pretrain_mnist, num_batches=None, debug=False),
+        ops.classify.lazyClassify('test', output_name='test_' + model_name),
+        ops.classify.lazyClassify('eval', output_name='eval_' + model_name),
         # ops.time_estimate.lazyTimeEstimate(),
         ops.time.lazyClock()
     ]

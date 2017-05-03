@@ -11,7 +11,7 @@ def trainOp(pretrain=True):
     if pretrain:
         (batch_images, batch_years), num_batches = mnist.mnistBatch(True)
     else:
-        batch_images, batch_years, _, num_batches = swe.sweBatch(True)
+        batch_images, batch_years, _, num_batches = swe.sweBatch('train')
 
     year_log = run.runNetwork(batch_images, True)
     error = sc.error(batch_years, year_log)
