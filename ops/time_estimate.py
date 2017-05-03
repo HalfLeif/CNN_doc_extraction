@@ -1,5 +1,6 @@
 
 import ops.train
+import util.file
 
 import tensorflow as tf
 from tensorflow.python.client import timeline
@@ -36,6 +37,7 @@ def runTimeEstimate(sess, train_step):
     tl = timeline.Timeline(run_metadata.step_stats)
     ctf = tl.generate_chrome_trace_format()
 
+    util.file.mkdirs('data')
     filename = os.path.join('data', 'timeline.json')
     with open(filename, 'w+') as f:
         f.write(ctf)

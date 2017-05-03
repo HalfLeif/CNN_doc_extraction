@@ -1,3 +1,5 @@
+import util.file
+
 import gflags
 import tensorflow as tf
 
@@ -8,6 +10,7 @@ gflags.DEFINE_string('model_dir', 'models', 'Directory for saving and loading mo
 
 def saveModel(saver, model_name, step):
     print('Saving ', model_name)
+    util.file.mkdirs(gflags.FLAGS.model_dir)
     save_name = os.path.join(gflags.FLAGS.model_dir, model_name)
     save_path = saver.save(sess, save_name, global_step=step, write_meta_graph=False)
 

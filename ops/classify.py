@@ -1,7 +1,6 @@
 import loading.load_swe as swe
 import network.run as run
-import pretrain.mnist as mnist
-import scoring as sc
+import util.file
 
 import numpy as np
 import tensorflow as tf
@@ -30,8 +29,7 @@ def formatArray(arr):
 
 def saveClassifications(output_name, classifications):
     directory = os.path.join('data', 'classification')
-    # TODO: only make dir if does not exist
-    # os.makedirs(directory)
+    util.file.mkdirs(directory)
 
     filename = os.path.join(directory, output_name+'.csv')
     with open(filename, 'w+') as f:
