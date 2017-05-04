@@ -2,6 +2,7 @@
 MNIST_data/
 models/
 data/
+output/
 
 *.pyc
 *.temp

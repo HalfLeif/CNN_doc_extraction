@@ -1,3 +1,4 @@
+import loading.load_swe as swe
 import postprocess.books as books
 import postprocess.classifications as cs
 import postprocess.jump_distribution as jd
@@ -98,5 +99,6 @@ def optimizeBooks(collections, predictions_filename):
 
 
 if __name__ == '__main__':
-    printBooks(['1647578'], '1647578')
+    # printBooks(swe.swe_eval_only, 'eval_Swe_DEP3_ind_digits7-2299.csv')
+    printBooks(swe.swe_train_collections, 'test_Swe_DEP3_ind_digits7-2299.csv')
     # optimizeBooks(['1647578'], '1647578')
