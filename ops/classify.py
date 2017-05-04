@@ -9,7 +9,7 @@ import os
 
 
 def classifyOp(dataset):
-    batch_images, _, batch_paths, num_batches = swe.sweBatch(dataset)
+    batch_images, _, batch_paths, num_batches = swe.sweBatch(dataset, shuffle=False)
     year_log = run.runNetwork(batch_images, False)
     return year_log, batch_paths, num_batches
 
