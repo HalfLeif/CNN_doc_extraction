@@ -20,6 +20,7 @@ gflags.DEFINE_string('labels_dir', '/home/leif/labels',
 swe_train_collections = ['1647578', '1647598', '1647693', '1930273']
 swe_eval_only = ['1930243', '1949331']
 
+
 def makeQueue(all_jpgs, all_years, shuffle=True):
     batch_size = gflags.FLAGS.SWE_BATCH_SIZE
     num_batches = int(len(all_years)/batch_size)
@@ -45,19 +46,23 @@ def makeQueue(all_jpgs, all_years, shuffle=True):
     print('Swe queue created')
     return batch_images, batch_years, batch_paths, num_batches
 
+
 def sweBatch(dataset, shuffle=True):
-    print('Load transcriptions')
+    all_jpgs, all_years = loadDataset(dataset)
+    return makeQueue(all_jpgs, all_years, shuffle=shuffle)
+
+
+def loadDataset(dataset):
+    print('Load transcriptions for', dataset)
     if dataset == 'train':
-        all_jpgs, all_years = loadTrainingSet()
+        return loadTrainingSet()
     elif dataset == 'test':
-        all_jpgs, all_years = loadTestSet()
+        return loadTestSet()
     elif dataset == 'eval':
-        all_jpgs, all_years = loadEvalSet()
+        return loadEvalSet()
     else:
         # List of collections, load both test and train data for each.
-        all_jpgs, all_years = loadTrainTest(dataset)
-
-    return makeQueue(all_jpgs, all_years, shuffle=shuffle)
+        return loadTrainTest(dataset)
 
 
 def loadTrainingSet():
