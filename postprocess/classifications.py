@@ -34,8 +34,7 @@ def prediction(logits_1, logits_2, logits_3):
 def buildPredictionDict(filename):
     predictions = {}
     for img_id, d1, d2, d3 in loadClassifications(filename):
-        pred = prediction(d1, d2, d3)
-        predictions[img_id] = pred
+        predictions[img_id] = prediction(d1, d2, d3)
     return predictions
 
 def buildLogitsDict(filename):

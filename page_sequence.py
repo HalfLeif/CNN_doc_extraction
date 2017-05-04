@@ -9,21 +9,8 @@ import os
 import statistics as st
 
 
-def printBooks(collection):
-    page_index_dir = os.path.join('data', 'labels_index', 'page_index')
-    filename = os.path.join(page_index_dir, collection+'.csv')
-    organized = books.organizeToBooks(filename)
+classification_dir = os.path.join('data', 'classification')
 
-    cs_file = os.path.join('data', 'classification', collection+'.csv')
-    predictions = cs.buildPredictionDict(cs_file)
-
-    for book_id, page_seq in organized:
-        print(book_id, len(page_seq))
-        for image_id, year_seq in page_seq:
-            if image_id in predictions:
-                print('\t', image_id, predictions[image_id], year_seq)
-            else:
-                print('\t', image_id, '____', year_seq)
 
 def yearDiff(year, year_list):
     low = min(year_list)
@@ -35,20 +22,48 @@ def yearDiff(year, year_list):
     else:
         return 0
 
+
 def listAcc(diffs):
     return float(diffs.count(0)) / len(diffs)
+
 
 def printStats(diffs):
     print('Acc ', listAcc(diffs))
     print('Med ', st.median(diffs))
     print('Mean', st.mean(diffs))
 
-def optimizeBooks(collection):
-    page_index_dir = os.path.join('data', 'labels_index', 'page_index')
-    filename = os.path.join(page_index_dir, collection+'.csv')
-    organized = books.organizeToBooks(filename)
 
-    cs_file = os.path.join('data', 'classification', collection+'.csv')
+def printBooks(collections, predictions_filename):
+    ''' Prints classifications in order of the books.
+        Also prints some overall metric stats.
+    '''
+    organized = books.organizeToBooks(collections)
+
+    cs_file = os.path.join(classification_dir, predictions_filename)
+    predictions = cs.buildPredictionDict(cs_file)
+
+    diffs = []
+    for book_id, page_seq in organized:
+        print(book_id, len(page_seq))
+        for image_id, year_labels in page_seq:
+            if image_id in predictions:
+                pred_year = predictions[image_id]
+                print('\t', image_id, pred_year, year_labels)
+                diffs.append(yearDiff(pred_year, year_labels))
+            else:
+                print('\t', image_id, '____', year_labels)
+
+    print('# Predictions from', predictions_filename)
+    printStats(diffs)
+
+
+def optimizeBooks(collections, predictions_filename):
+    ''' Prints classifications and post-processing in order of the books.
+        Also prints some overall metric stats.
+    '''
+    organized = books.organizeToBooks([collection])
+
+    cs_file = os.path.join(classification_dir, predictions_filename)
     logits_dict = cs.buildLogitsDict(cs_file)
 
     # Conditional jump distribution:
@@ -81,25 +96,7 @@ def optimizeBooks(collection):
     print('# Post-processed')
     printStats(opt_diffs)
 
-if __name__ == '__main__':
-    # printBooks('1647578')
-    optimizeBooks('1647578')
-    # cs_file = os.path.join('data', 'classification', '1647578.csv')
-    # ls = cs.buildLogitsDict(cs_file)
-    # du.printDict(ls)
 
-    # obj = jd.buildDistribution()
-    # obj = jd.loadDistribution(os.path.join('data', 'cond_jumps.csv'))
-    # obj.printSelf()
-    # print('P(0)\t', obj.marginalProb(0))
-    # print('P(1)\t', obj.marginalProb(1))
-    #
-    # print('P(0|0)\t', obj.condProb(0, 0))
-    # print('P(1|0)\t', obj.condProb(1, 0))
-    #
-    # print('P(0|1)\t', obj.condProb(0, 1))
-    # print('P(1|1)\t', obj.condProb(1, 1))
-    #
-    # print('P(0|2)\t', obj.condProb(0, 2))
-    # print('P(1|2)\t', obj.condProb(1, 2))
-    # print('P(2|2)\t', obj.condProb(2, 2))
+if __name__ == '__main__':
+    printBooks(['1647578'], '1647578')
+    # optimizeBooks(['1647578'], '1647578')
