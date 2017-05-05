@@ -1,24 +1,10 @@
+import postprocess.classifications as cs
 
 import numpy as np
 
 min_label = 1600
 max_label = 1899
 num_labels = max_label - min_label + 1
-
-
-def softmax(x):
-    ''' Computes the softmax value for each label score in x.
-        We subtract max(x) for numerical stability
-        but it does not affect the mathematical result, see:
-        http://stackoverflow.com/questions/34968722/softmax-function-python
-    '''
-    e_x = np.exp(x - np.max(x))
-    return e_x / e_x.sum()
-
-
-def expandLogits(logits):
-    digit_probabilities = [softmax(dlog) for dlog in logits]
-    return digit_probabilities
 
 
 def yearToDigits(year):
@@ -108,7 +94,7 @@ def optimizeBook(page_seq, jump_distribution, logits_dict):
             continue
 
         logits = logits_dict[image_id]
-        digit_probabilities = expandLogits(logits)
+        digit_probabilities = cs.expandLogits(logits)
         label_probabilities = labelProbabilities(digit_probabilities)
         original_predictions.append(np.argmax(label_probabilities))
 

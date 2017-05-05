@@ -33,11 +33,17 @@ def listThreshold(diffs, threshold):
     return float(below) / len(diffs)
 
 def printStats(diffs):
-    print('Acc ', listAcc(diffs))
+    print('Prec', listAcc(diffs))
     print('Med ', st.median(diffs))
     print('Mean', st.mean(diffs))
     print('Below', listThreshold(diffs, 5))
 
+def filterList(elems, confs, threshold):
+    above = []
+    for i in range(len(elems)):
+        if confs[i] > threshold:
+            above.append(elems[i])
+    return above
 
 def printBooks(collections, predictions_filename, debug=True):
     ''' Prints classifications in order of the books.
@@ -49,22 +55,35 @@ def printBooks(collections, predictions_filename, debug=True):
     predictions = cs.buildPredictionDict(cs_file)
 
     diffs = []
+    confs = []
     for book_id, page_seq in organized:
         if debug:
             print(book_id, len(page_seq))
 
         for image_id, year_labels in page_seq:
             if image_id in predictions:
-                pred_year = predictions[image_id]
+                pred_year, conf = predictions[image_id]
                 diffs.append(yearDiff(pred_year, year_labels))
+                confs.append(conf)
             else:
                 pred_year = '____'
+                conf = ''
 
             if debug:
-                print('\t', image_id, pred_year, year_labels)
+                print('\t', image_id, pred_year, conf, year_labels)
 
     print('# Predictions from', predictions_filename)
-    printStats(diffs)
+
+    num_thresholds = 5
+    max_threshold = 0.4
+    for i in range(num_thresholds):
+        threshold = i * max_threshold / (num_thresholds - 1)
+        print('# Confidence threshold:', threshold)
+        filtered = filterList(diffs, confs, threshold)
+        if filtered:
+            printStats(filtered)
+        print('Cov ', float(len(filtered))/len(diffs))
+    # printStats(diffs)
 
 
 def optimizeBooks(collections, predictions_filename):
@@ -108,6 +127,6 @@ def optimizeBooks(collections, predictions_filename):
 
 
 if __name__ == '__main__':
-    printBooks(swe.swe_eval_only, 'eval_Swe_DEP3_ind_digits7-2299.csv', False)
-    # printBooks(swe.swe_train_collections, 'test_SweDep4_single_label_6-2133.csv', False)
+    # printBooks(swe.swe_eval_only, 'eval_Swe_DEP3_ind_digits7-2299.csv', False)
+    printBooks(swe.swe_train_collections, 'test_Swe_DEP3_ind_digits7-2299.csv', False)
     # optimizeBooks(['1647578'], '1647578')
