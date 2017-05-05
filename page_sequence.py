@@ -27,11 +27,16 @@ def yearDiff(year, year_list):
 def listAcc(diffs):
     return float(diffs.count(0)) / len(diffs)
 
+def listThreshold(diffs, threshold):
+    ''' Returns the fraction of elements that are below the threshold.'''
+    below = len([e for e in diffs if e < threshold])
+    return float(below) / len(diffs)
 
 def printStats(diffs):
     print('Acc ', listAcc(diffs))
     print('Med ', st.median(diffs))
     print('Mean', st.mean(diffs))
+    print('Below', listThreshold(diffs, 5))
 
 
 def printBooks(collections, predictions_filename):
@@ -99,6 +104,6 @@ def optimizeBooks(collections, predictions_filename):
 
 
 if __name__ == '__main__':
-    # printBooks(swe.swe_eval_only, 'eval_Swe_DEP3_ind_digits7-2299.csv')
-    printBooks(swe.swe_train_collections, 'test_Swe_DEP3_ind_digits7-2299.csv')
+    # printBooks(swe.swe_eval_only, 'eval_SweDep4_single_label_6-2133.csv')
+    printBooks(swe.swe_train_collections, 'test_SweDep4_single_label_6-2133.csv')
     # optimizeBooks(['1647578'], '1647578')
