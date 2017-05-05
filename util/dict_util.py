@@ -9,6 +9,10 @@ def increment(distribution, key, incr):
     else:
         distribution[key] = incr
 
-def printDict(d):
-    for key in d:
-        print(key, d[key])
+def printDict(dictionary):
+    for key in dictionary:
+        print(key, dictionary[key])
+
+def printDictSorted(dictionary):
+    for key in sorted(dictionary.keys()):
+        print(key, dictionary[key])
