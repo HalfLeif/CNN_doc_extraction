@@ -33,10 +33,10 @@ def listThreshold(diffs, threshold):
     return float(below) / len(diffs)
 
 def printStats(diffs):
-    print('Prec', listAcc(diffs))
-    print('Med ', st.median(diffs))
-    print('Mean', st.mean(diffs))
-    print('Below', listThreshold(diffs, 5))
+    print('# Prec', listAcc(diffs))
+    print('# Med ', st.median(diffs))
+    print('# Mean', st.mean(diffs))
+    print('# Below', listThreshold(diffs, 5))
 
 def filterList(elems, confs, threshold):
     above = []
@@ -90,7 +90,7 @@ def optimizeBooks(collections, predictions_filename):
     ''' Prints classifications and post-processing in order of the books.
         Also prints some overall metric stats.
     '''
-    organized = books.organizeToBooks([collection])
+    organized = books.organizeToBooks(collections)
 
     cs_file = os.path.join(classification_dir, predictions_filename)
     logits_dict = cs.buildLogitsDict(cs_file)
@@ -127,6 +127,7 @@ def optimizeBooks(collections, predictions_filename):
 
 
 if __name__ == '__main__':
-    # printBooks(swe.swe_eval_only, 'eval_Swe_DEP3_ind_digits7-2299.csv', False)
-    printBooks(swe.swe_train_collections, 'test_Swe_DEP3_ind_digits7-2299.csv', False)
-    # optimizeBooks(['1647578'], '1647578')
+    # printBooks(swe.swe_eval_only, 'eval_Swe_DEP3_ind_digits6-3417.csv', False)
+    # printBooks(swe.swe_train_collections, 'test_Swe_DEP3_ind_digits6-3417.csv', False)
+    # optimizeBooks(swe.swe_eval_only, 'eval_SweDEP4_multiyear_4-3417.csv')
+    optimizeBooks(['1647578'], '1647578.csv')
