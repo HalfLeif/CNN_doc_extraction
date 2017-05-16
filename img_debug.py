@@ -17,7 +17,12 @@ def py_WriteImage(re_encoded, label):
 def debugImage(image, label):
     image = tf.squeeze(image)
     image = tf.expand_dims(image, -1)
-    restore = tf.cast(image*255, tf.uint8)
+
+    maxval = tf.reduce_max(image)
+    minval = tf.reduce_min(image)
+    normalized = (image - minval)/(maxval - minval)
+
+    restore = tf.cast(normalized*255, tf.uint8)
     re_encoded = tf.image.encode_jpeg(restore)
     write_op = tf.py_func(py_WriteImage, [re_encoded, label], tf.int32, stateful=True)
     return write_op
