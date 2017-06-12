@@ -1,4 +1,4 @@
-# DEPRECATED
+''' DEPRECATED '''
 
 import preprocess.grayscale as gray
 

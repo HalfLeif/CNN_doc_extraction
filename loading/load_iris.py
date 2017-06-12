@@ -1,3 +1,5 @@
+''' DEPRECATED '''
+
 
 import loading.load_image as img
 

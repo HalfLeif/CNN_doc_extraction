@@ -1,3 +1,5 @@
+''' DEPRECATED '''
+
 import grayscale as gray
 
 import tensorflow as tf
