@@ -1,3 +1,4 @@
+''' See README '''
 
 import ops.classify
 import ops.model_io
