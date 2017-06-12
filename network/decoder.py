@@ -4,14 +4,17 @@ from tensorflow.contrib import slim
 
 
 def switchFirstTwo(ds):
-    '''Swaps the first two elements in a list.'''
+    ''' DEPRECATED.
+        Swaps the first two elements in a list.
+    '''
     if len(ds) < 2:
         return ds
     ds[0], ds[1] = (ds[1], ds[0])
     return ds
 
 def expandDigits(digit_stack):
-    ''' Takes a stack of N vectors of digit log probabilities,
+    ''' DEPRECATED.
+        Takes a stack of N vectors of digit log probabilities,
         returns a single vector of number log probabilities with shape=[10**N].
     '''
     digit_list = switchFirstTwo(tf.unstack(digit_stack))
@@ -36,18 +39,11 @@ def decodeNumber(net, keep_prob):
         net = slim.fully_connected(net, 1024, scope='fc1')
         net = slim.dropout(net, keep_prob, scope='dropout1')
 
-        # net = slim.fully_connected(net, 512, scope='fc2')
-        # net = slim.dropout(net, keep_prob, scope='dropout2')
-
-        # ignore = slim.fully_connected(net, 2, activation_fn=None, scope='ignore')
         digit1 = slim.fully_connected(net, 10, activation_fn=None, scope='digit1')
         digit2 = slim.fully_connected(net, 10, activation_fn=None, scope='digit2')
         digit3 = slim.fully_connected(net, 10, activation_fn=None, scope='digit3')
 
-        # Note: this adds redundancy but is necessary
-        # in order to require the exact year
-        # instead of giving credit for partially correct year transcriptions.
         return [digit1, digit2, digit3]
-        # numbers = tf.map_fn(expandDigits, stacked_digits)
-        # return ignore, numbers
-        # return numbers
+
+        # The following would produce a Cartesian product instead:
+        # return tf.map_fn(expandDigits, stacked_digits)

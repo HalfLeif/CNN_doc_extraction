@@ -1,5 +1,5 @@
 
-import conv
+import decoder
 
 import tensorflow as tf
 
@@ -9,7 +9,7 @@ def stackDigits(digit_list, base):
 
 def expandTest(digit_list, base):
     stack = stackDigits(digit_list, base)
-    number_prob = conv.expandDigits(stack)
+    number_prob = decoder.expandDigits(stack)
     number = tf.argmax(number_prob, axis=0)
     return number
 
@@ -39,6 +39,9 @@ class DecodeTest(tf.test.TestCase):
 
             number = expandTest([1, 0, 0, 0, 0], 2)
             self.assertAllEqual(number.eval(), 16)
+
+            number = expandTest([1, 0, 0, 0, 1], 2)
+            self.assertAllEqual(number.eval(), 17)
 
 
 if __name__ == '__main__':
