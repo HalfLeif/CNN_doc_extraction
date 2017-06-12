@@ -33,3 +33,17 @@ def attend(net, keep_prob):
     ''' Computes soft attention for all activations in this batch.'''
     atts = tf.map_fn(lambda img: attend_image(img, keep_prob), net)
     return tf.expand_dims(atts, -1)
+
+def hardAttend(net, keep_prob):
+    ''' Computes hard attention by maximum instead of sampling.
+        Interface identical as for soft attention above.
+    '''
+    attention = attend(net, keep_prob)
+    [batch_size, height, width, depth] = tf.unstack(tf.shape(net))
+
+    flat_att = tf.reshape(attention, [batch_size, height*width])
+    max_att = tf.argmax(flat_att, axis=1)
+    att_vector = tf.one_hot(max_att, height*width, dtype=tf.float32)
+    att_matrix = tf.reshape(att_vector, [batch_size, height, width, 1])
+
+    return att_matrix
