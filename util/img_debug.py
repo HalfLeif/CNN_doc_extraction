@@ -74,13 +74,3 @@ def debugAttention(attention):
     # print_op = tf.py_func(py_printMatrix, [first_attention], tf.int32, stateful=True)
     # print_op = tf.Print(print_op, [debugImage(first_attention, 'attention')])
     return debugImage(rebuild_attention, 'rebuilt')
-
-if __name__ == '__main__':
-    # x = np.arange(9)
-    # x = np.reshape(x, (3,3))
-    x = np.zeros((3,3), dtype=np.float32) + 1
-    print(x)
-    # x[1:2,:] = 1
-    # print(x)
-    y = py_rebuildBottomAttention(x)
-    print(y)

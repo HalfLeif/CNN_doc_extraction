@@ -1,4 +1,4 @@
-import img_debug as debug
+import util.img_debug as debug
 
 import gflags
 import numpy as np

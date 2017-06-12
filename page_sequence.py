@@ -83,7 +83,7 @@ def printBooks(collections, predictions_filename, debug=True):
         if filtered:
             printStats(filtered)
         print('Cov ', float(len(filtered))/len(diffs))
-    # printStats(diffs)
+    printStats(diffs)
 
 
 def optimizeBooks(collections, predictions_filename):
