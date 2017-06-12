@@ -1,7 +1,7 @@
 import loading.load_swe as swe
 import network.run as run
+import network.scoring as sc
 import pretrain.mnist as mnist
-import scoring as sc
 
 import numpy as np
 import tensorflow as tf
