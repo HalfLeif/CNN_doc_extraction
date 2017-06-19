@@ -74,6 +74,7 @@ def printBooks(collections, predictions_filename, debug=True):
 
     print('# Predictions from', predictions_filename)
 
+    # Confidence thresholding:
     num_thresholds = 5
     max_threshold = 0.4
     for i in range(num_thresholds):
