@@ -10,10 +10,10 @@ import os
 
 gflags.DEFINE_integer('SWE_BATCH_SIZE', 10, 'Number of training examples for MNIST per batch.', lower_bound=2)
 
-gflags.DEFINE_string('records_dir', '/home/leif/sweden/records',
+gflags.DEFINE_string('records_dir', '',
         'Directory containing the SWE image collections.')
 
-gflags.DEFINE_string('labels_dir', '/home/leif/labels',
+gflags.DEFINE_string('labels_dir', '',
         'Directory containing the SWE label csvs.')
 
 
@@ -100,6 +100,12 @@ def loadCollection(collection_name, train=True):
         subdir = 'train'
     else:
         subdir = 'test'
+
+    if not gflags.FLAGS.records_dir:
+        raise ValueError('--records_dir not set.')
+
+    if not gflags.FLAGS.labels_dir:
+        raise ValueError('--labels_dir not set.')
 
     labels_file = os.path.join(gflags.FLAGS.labels_dir,
             subdir, collection_name + '.csv')

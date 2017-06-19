@@ -23,13 +23,13 @@ Loads a network from file or creates a newly initialized network.
 The list `lambdas` contains all steps that should be computed. The operations are added to Tensorflow's computation graph and they are evaluated in order in the same session. Additionally can time each operation.
 
 Supported operations:
-- Load model from file: `ops.model_io.lazyLoadModel`. If no model was loaded, the parameters are initialized randomly.
+- Load model from file: `ops.model_io.lazyLoadModel`. If no model was loaded, the parameters are initialized randomly. Uses flag `--model_dir`. Models are automatically saved during training.
 - Train model: `ops.train.lazyTrain`.
 - Test model: `ops.test.lazyTest`.
 - Run model on dataset and output logits to file: `ops.classify.lazyClassify`. Logits can be used further by module `page_sequence`.
 - Start timer and output spent cputime: `ops.time.lazyStart` and `ops.time.lazyClock`.
 
-Requires that the data directories are properly assigned using flags, see `loading.load_swe`.
+Requires that the data directories `--records_dir` and `--labels_dir` are properly assigned using flags. See `loading.load_swe` for more information.
 
 The number of threads can be adjusted using flag `NUM_THREADS`.
 
