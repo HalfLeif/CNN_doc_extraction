@@ -1,10 +1,10 @@
-Master Thesis by Leif Schelin, June 2017, at Chalmers University of Technology. (Source)[https://github.com/HalfLeif/CNN_doc_extraction].
+Master Thesis by Leif Schelin, June 2017, at Chalmers University of Technology. [Source](https://github.com/HalfLeif/CNN_doc_extraction).
 
-We attempt to classify year of Swedish civil population records by deep learning using CNNs and attention models. The labels have been extracted from GedcomX using (GedcomXExtractor)[https://github.com/HalfLeif/GedcomXExtract] into csv-files.
+We attempt to classify year of Swedish civil population records by deep learning using CNNs and attention models. The labels have been extracted from GedcomX using [GedcomXExtractor](https://github.com/HalfLeif/GedcomXExtract) into csv-files.
 
 There are three runnable modules described below.
 
-The corresponding Master Thesis report can be found (here)[https://github.com/HalfLeif/Master-Thesis---Waypointing].
+The corresponding Master Thesis report can be found [here](https://github.com/HalfLeif/Master-Thesis---Waypointing).
 
 
 # Requirements
