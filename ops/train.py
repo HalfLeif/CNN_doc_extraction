@@ -1,8 +1,9 @@
+import loading.load_mnist as mnist
 import loading.load_swe as swe
 import network.run as run
 import network.scoring as sc
 import ops.model_io as io
-import pretrain.mnist as mnist
+
 
 import tensorflow as tf
 
